@@ -12,14 +12,14 @@
     "tabs": [
       {
         "tab": "API reference",
-        "source": "openapi.json"
+        "openapi": "openapi.json"
       }
     ],
     "global": {
       "anchors": [
         {
           "anchor": "API Reference",
-          "href": "https://mintlify.com/docs",
+          "href": "/api-reference",
           "icon": "book-open-cover"
         }
       ]
