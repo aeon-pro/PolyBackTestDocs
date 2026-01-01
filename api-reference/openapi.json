@@ -800,20 +800,126 @@
                 "title": "MarketsListResponse",
                 "description": "Paginated markets list response."
             },
+            "SnapshotResponse": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id",
+                        "description": "Unique snapshot identifier"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Time",
+                        "description": "Timestamp when the snapshot was captured (ISO8601)"
+                    },
+                    "market_id": {
+                        "type": "string",
+                        "title": "Market Id",
+                        "description": "ID of the market this snapshot belongs to"
+                    },
+                    "btc_price": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ],
+                        "title": "BTC Price",
+                        "description": "Bitcoin price at the time of snapshot (USD)"
+                    },
+                    "price_up": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ],
+                        "title": "Price Up",
+                        "description": "Best price for the UP token (0-1 range)"
+                    },
+                    "price_down": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ],
+                        "title": "Price Down",
+                        "description": "Best price for the DOWN token (0-1 range)"
+                    },
+                    "orderbook_up": {
+                        "anyOf": [
+                            {"$ref": "#/components/schemas/OrderBookResponse"},
+                            {"type": "null"}
+                        ],
+                        "title": "Orderbook Up",
+                        "description": "Full order book for the UP token"
+                    },
+                    "orderbook_down": {
+                        "anyOf": [
+                            {"$ref": "#/components/schemas/OrderBookResponse"},
+                            {"type": "null"}
+                        ],
+                        "title": "Orderbook Down",
+                        "description": "Full order book for the DOWN token"
+                    }
+                },
+                "type": "object",
+                "required": ["id", "time", "market_id"],
+                "title": "SnapshotResponse",
+                "description": "A single market snapshot containing price and order book data."
+            },
+            "OrderBookResponse": {
+                "properties": {
+                    "bids": {
+                        "items": {
+                            "$ref": "#/components/schemas/OrderBookEntry"
+                        },
+                        "type": "array",
+                        "title": "Bids",
+                        "description": "List of bid orders (buy orders), sorted by price descending"
+                    },
+                    "asks": {
+                        "items": {
+                            "$ref": "#/components/schemas/OrderBookEntry"
+                        },
+                        "type": "array",
+                        "title": "Asks",
+                        "description": "List of ask orders (sell orders), sorted by price ascending"
+                    }
+                },
+                "type": "object",
+                "required": ["bids", "asks"],
+                "title": "OrderBookResponse",
+                "description": "Order book containing bid and ask orders."
+            },
+            "OrderBookEntry": {
+                "properties": {
+                    "price": {
+                        "type": "number",
+                        "title": "Price",
+                        "description": "Order price (0-1 range)"
+                    },
+                    "size": {
+                        "type": "number",
+                        "title": "Size",
+                        "description": "Order size in tokens"
+                    }
+                },
+                "type": "object",
+                "required": ["price", "size"],
+                "title": "OrderBookEntry",
+                "description": "A single order in the order book."
+            },
             "SnapshotAtTimestampResponse": {
                 "properties": {
                     "market": {
-                        "additionalProperties": true,
-                        "type": "object",
-                        "title": "Market"
+                        "$ref": "#/components/schemas/MarketResponse",
+                        "title": "Market",
+                        "description": "Market details"
                     },
                     "snapshots": {
                         "items": {
-                            "additionalProperties": true,
-                            "type": "object"
+                            "$ref": "#/components/schemas/SnapshotResponse"
                         },
                         "type": "array",
-                        "title": "Snapshots"
+                        "title": "Snapshots",
+                        "description": "Array containing 0 or 1 snapshot closest to the requested timestamp"
                     }
                 },
                 "type": "object",
@@ -827,29 +933,32 @@
             "SnapshotsListResponse": {
                 "properties": {
                     "market": {
-                        "additionalProperties": true,
-                        "type": "object",
-                        "title": "Market"
+                        "$ref": "#/components/schemas/MarketResponse",
+                        "title": "Market",
+                        "description": "Market details"
                     },
                     "snapshots": {
                         "items": {
-                            "additionalProperties": true,
-                            "type": "object"
+                            "$ref": "#/components/schemas/SnapshotResponse"
                         },
                         "type": "array",
-                        "title": "Snapshots"
+                        "title": "Snapshots",
+                        "description": "Array of market snapshots"
                     },
                     "total": {
                         "type": "integer",
-                        "title": "Total"
+                        "title": "Total",
+                        "description": "Total number of snapshots available for this market"
                     },
                     "limit": {
                         "type": "integer",
-                        "title": "Limit"
+                        "title": "Limit",
+                        "description": "Number of results returned in this response"
                     },
                     "offset": {
                         "type": "integer",
-                        "title": "Offset"
+                        "title": "Offset",
+                        "description": "Pagination offset used for this request"
                     }
                 },
                 "type": "object",
