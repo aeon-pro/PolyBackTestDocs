@@ -11,9 +11,9 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "API reference",
-        "openapi": "openapi.json"
-      }
+  "tab": "API Reference",
+  "openapi": "api-reference/openapi.json"
+}
     ],
     "global": {
       "anchors": [
