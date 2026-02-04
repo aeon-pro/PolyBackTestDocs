@@ -11,9 +11,16 @@
   "navigation": {
     "tabs": [
       {
-  "tab": "API Reference",
-  "openapi": "api-reference/openapi.json"
-}
+        "tab": "Guides",
+        "pages": [
+          "index",
+          "api-keys"
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": "api-reference/openapi.json"
+      }
     ],
     "global": {
       "anchors": [
