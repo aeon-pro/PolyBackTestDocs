@@ -110,16 +110,16 @@
                             "anyOf": [
                                 {
                                     "type": "string",
-                                    "enum": ["15m", "1hr", "4hr", "24hr"]
+                                    "enum": ["5m", "15m", "1hr", "4hr", "24hr"]
                                 },
                                 {
                                     "type": "null"
                                 }
                             ],
-                            "description": "Filter by market type (15m, 1hr, 4hr, 24hr)",
+                            "description": "Filter by market type (5m, 15m, 1hr, 4hr, 24hr)",
                             "title": "Market Type"
                         },
-                        "description": "Filter by market type (15m, 1hr, 4hr, 24hr)"
+                        "description": "Filter by market type (5m, 15m, 1hr, 4hr, 24hr)"
                     },
                     {
                         "name": "resolved",
@@ -259,7 +259,7 @@
                         "title": "Get Market By Slug",
                         "description": "Retrieve market details using a human-readable slug identifier"
                     },
-                    "content": "## Slug Format\n\nMarket slugs follow a consistent naming pattern based on the market type and timing.\n\n**Examples:**\n- `btc-updown-24h-2026-01-01`\n- `btc-updown-1hr-2026-01-01-09`"
+                    "content": "## Slug Format\n\nMarket slugs follow a consistent naming pattern based on the market type and timing.\n\n**Examples:**\n- `btc-updown-5m-1770927600`\n- `btc-updown-24h-2026-01-01`\n- `btc-updown-1hr-2026-01-01-09`"
                 },
                 "parameters": [
                     {
@@ -272,7 +272,7 @@
                             "title": "Slug"
                         },
                         "description": "Market slug",
-                        "example": "btc-updown-24h-2026-01-01"
+                        "example": "btc-updown-5m-1770927600"
                     }
                 ],
                 "responses": {
