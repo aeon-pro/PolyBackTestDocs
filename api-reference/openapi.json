@@ -325,14 +325,14 @@
                     "v1 - Snapshots"
                 ],
                 "summary": "Get Market Snapshots",
-                "description": "Get snapshots for a market with pagination.\n\nReturns snapshots sorted by time ascending (oldest first).\nMaximum limit is 1000 snapshots per request.\n\nBy default, include_orderbook=true so each snapshot includes full orderbook depth. Set include_orderbook=false for lower-latency, lighter responses.",
+                "description": "Get snapshots for a market with pagination.\n\nReturns snapshots sorted by time ascending (oldest first).\nMaximum limit is 1000 snapshots per request.\n\nBy default, include_orderbook=false for lower-latency, lighter responses. Set include_orderbook=true when you need full orderbook depth.",
                 "operationId": "get_market_snapshots_v1_markets__market_id__snapshots_get",
                 "x-mint": {
                     "metadata": {
                         "title": "Get Market Snapshots",
                         "description": "Retrieve paginated historical snapshots for backtesting and analysis"
                     },
-                    "content": "## Snapshot Data\n\nSnapshots capture the market state at regular intervals, including:\n- **Price data**: Bid/ask prices for UP and DOWN tokens\n- **Order book**: Full order book depth at capture time\n- **BTC price**: Bitcoin price at snapshot time\n\n<Info>Orderbooks are returned by default (`include_orderbook=true`). If you explicitly want orderbook depth, set `include_orderbook=true`.</Info>\n\n<Tip>Use `start_time` and `end_time` filters to focus on specific time windows for backtesting.</Tip>"
+                    "content": "## Snapshot Data\n\nSnapshots capture the market state at regular intervals, including:\n- **Price data**: Bid/ask prices for UP and DOWN tokens\n- **Order book**: Full order book depth at capture time\n- **BTC price**: Bitcoin price at snapshot time\n\n<Info>Orderbooks are not returned by default (`include_orderbook=false`). Set `include_orderbook=true` when you need full orderbook depth.</Info>\n\n<Tip>Use `start_time` and `end_time` filters to focus on specific time windows for backtesting.</Tip>"
                 },
                 "parameters": [
                     {
@@ -346,6 +346,19 @@
                         },
                         "description": "Market ID",
                         "example": "1051520"
+                    },
+                    {
+                        "name": "include_orderbook",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "description": "Include full orderbook JSON in each snapshot. Default: false. Set include_orderbook=true when you need full orderbook depth.",
+                            "default": false,
+                            "title": "Include Orderbook"
+                        },
+                        "description": "Include full orderbook JSON in each snapshot. Default: false. Set include_orderbook=true when you need full orderbook depth.",
+                        "example": false
                     },
                     {
                         "name": "limit",
@@ -413,19 +426,6 @@
                         },
                         "description": "Filter snapshots before this time (ISO8601)",
                         "example": "2026-01-01T23:59:59Z"
-                    },
-                    {
-                        "name": "include_orderbook",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean",
-                            "description": "Include full orderbook JSON in each snapshot. Default: true. Set include_orderbook=true when you need orderbook depth.",
-                            "default": true,
-                            "title": "Include Orderbook"
-                        },
-                        "description": "Include full orderbook JSON in each snapshot. Default: true. Set include_orderbook=true when you need orderbook depth.",
-                        "example": true
                     }
                 ],
                 "responses": {
