@@ -28,25 +28,48 @@
           "anchor": "API Reference",
           "href": "/api-reference",
           "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Dashboard",
+          "href": "https://polybacktest.com/dashboard",
+          "icon": "gauge"
+        },
+        {
+          "anchor": "Website",
+          "href": "https://polybacktest.com",
+          "icon": "globe"
         }
       ]
     }
   },
-  "logo":{
+  "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
   },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:support@polybacktest.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "https://polybacktest.com/dashboard"
+    }
+  },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
