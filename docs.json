@@ -14,7 +14,8 @@
         "tab": "Guides",
         "pages": [
           "index",
-          "api-keys"
+          "api-keys",
+          "rate-limits"
         ]
       },
       {
