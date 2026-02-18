@@ -30,16 +30,13 @@ We maintain an extensive database of historical prediction market data to suppor
 ## Data Sources & Accuracy
 
 ### Bitcoin Price
-The BTC price data used in our system is sourced directly from **Binance**.
+- **Standard Markets**: Sourced directly from **Binance**.
+- **5m & 15m Markets**: We now track **Chainlink** prices directly to ensure 100% alignment with Polymarket's resolution criteria.
 
 ### Market Resolution
-For **5-minute** and **15-minute** markets, PolyBackTest aligns with **Polymarket**, which uses **Chainlink** as its oracle for resolution. 
-
-<Note>
-  Because we source BTC price data from Binance while Polymarket uses Chainlink for settlement, you might observe slight discrepancies between the live BTC price shown in our API/snapshots and the price displayed on the Polymarket website.
-</Note>
+For **5-minute** and **15-minute** markets, PolyBackTest aligns with **Polymarket**, which uses **Chainlink** as its oracle for resolution. Since we now track Chainlink prices for these markets, our data is fully consistent with the settlement prices.
 
 **Importantly:**
 - **Orderbooks**: Are captured directly from the market and are consistent.
 - **Resolution Data**: We use the official resolution data, so settlement outcomes are accurate.
-- **Impact**: This slight price variance does not affect the integrity of orderbook depth or market resolution status.
+- **Price Accuracy**: With Chainlink integration for short-term markets, price data is highly accurate to the settlement source.
