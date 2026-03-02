@@ -23,12 +23,12 @@ For time-series endpoints, the following parameters are used:
 
 **Example:** Fetching snapshots for a specific market in January 2026
 ```bash
-curl "https://test.api.polybacktest.com/v2/markets/1051520/snapshots?start_time=2026-01-01T00:00:00Z&end_time=2026-01-31T23:59:59Z"
+curl "https://api.polybacktest.com/v2/markets/1051520/snapshots?start_time=2026-01-01T00:00:00Z&end_time=2026-01-31T23:59:59Z"
 ```
 
 **Example:** Fetching the last hour of spot trades using epoch timestamps
 ```bash
-curl "https://test.api.polybacktest.com/v2/spot/trades?start_time=1708992000000&end_time=1708995600000"
+curl "https://api.polybacktest.com/v2/spot/trades?start_time=1708992000000&end_time=1708995600000"
 ```
 
 ---
@@ -58,7 +58,7 @@ To fetch all data for a specific time range, you must loop through the results b
 import requests
 
 market_id = "1051520"
-base_url = f"https://test.api.polybacktest.com/v2/markets/{market_id}/snapshots"
+base_url = f"https://api.polybacktest.com/v2/markets/{market_id}/snapshots"
 headers = {"X-API-Key": "YOUR_API_KEY"}
 
 limit = 1000
