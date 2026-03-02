@@ -20,7 +20,7 @@
     },
     "servers": [
         {
-            "url": "https://test.api.polybacktest.com",
+            "url": "https://api.polybacktest.com",
             "description": "Production API"
         }
     ],
