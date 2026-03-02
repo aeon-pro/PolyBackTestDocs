@@ -1,0 +1,27 @@
+---
+title: 'Available Data & Markets'
+description: 'Supported coins and their available prediction market types'
+icon: 'chart-pie'
+---
+
+## Polymarket Up/Down Markets
+
+Currently, the PolyBackTest API tracks Polymarket prediction markets for the following cryptocurrencies:
+
+| Coin | Query Parameter `coin` | Supported Market Types |
+| :--- | :--- | :--- |
+| **Bitcoin** | `btc` (default) | `5m`, `15m`, `1hr`, `4hr`, `24hr` |
+| **Ethereum**| `eth` | `5m`, `15m`, `1hr` |
+
+<Info>
+As new assets (like SOL or XRP) are added to the platform, their supported market types will be listed here.
+</Info>
+
+## Binance Data
+
+Real-time orderbook snapshots and aggregated trades from Binance are also tracked for the supported coins:
+
+| Coin | Query Parameter `coin` | Spot Data | Futures Data |
+| :--- | :--- | :--- | :--- |
+| **Bitcoin** | `btc` (default) | ✅ | ✅ |
+| **Ethereum**| `eth` | ✅ | ✅ |

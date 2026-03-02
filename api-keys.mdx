@@ -26,14 +26,23 @@ Your API keys carry many privileges, so be sure to keep them secure! Do not shar
 
 ## Using the API Key
 
-You must include the API key in the `X-API-Key` header with every request.
+You must include the API key in the `Authorization` header (as a Bearer token) or the `X-API-Key` header with every request.
 
 ### Header Example
 
 ```bash
-curl -X GET "https://api.polybacktest.com/v1/markets" \
+# Using Authorization header (recommended)
+curl "https://api.polybacktest.com/v2/markets?coin=btc" \
+  -H "Authorization: Bearer pdm_your_api_key_here"
+
+# Or using X-API-Key header
+curl "https://api.polybacktest.com/v2/spot/latest?coin=btc" \
   -H "X-API-Key: pdm_your_api_key_here"
 ```
+
+<Info>
+All endpoints accept an optional `coin` query parameter (default: `btc`).
+</Info>
 
 ### Authentication Errors
 

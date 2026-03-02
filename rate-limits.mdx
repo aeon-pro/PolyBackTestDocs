@@ -1,6 +1,6 @@
 ---
-title: 'Rate Limits & Data'
-description: 'Understanding API limits and data sources'
+title: 'Rate Limits & Plans'
+description: 'Understanding API limits, plans, and data access'
 icon: 'gauge-high'
 ---
 
@@ -19,24 +19,83 @@ If you exceed these limits, the API will return a `429 Too Many Requests` error.
 - `X-RateLimit-Remaining`: The number of requests you have left in the current window.
 - `X-RateLimit-Reset`: The time at which the current window resets.
 
-## Data Retention & Scale
+## Plan-Based Market Limits
 
-We maintain an extensive database of historical prediction market data to support your backtesting needs.
+Access to market data depends on your plan. Free-plan users can access a limited window of the **most recent** markets for each timeframe. Pro users have **unlimited** access.
 
-- **Retention Period**: Data is stored for the past **31 days**.
-- **Market Coverage**: Over **5000+ markets** specifically tracked.
-- **Data Volume**: Access to over **60 million+ snapshots** across various timeframes.
+### Free Plan Limits
 
-## Data Sources & Accuracy
+| Market Type | Latest Markets Accessible | Snapshots |
+| :--- | :--- | :--- |
+| **5m** | 50 | Unlimited (for accessible markets) |
+| **15m** | 50 | Unlimited (for accessible markets) |
+| **1h** | 24 | Unlimited (for accessible markets) |
+| **4h** | 24 | Unlimited (for accessible markets) |
+| **24h** | 5 | Unlimited (for accessible markets) |
 
-### Bitcoin Price
-- **Standard Markets**: Sourced directly from **Binance**.
-- **5m & 15m Markets**: We now track **Chainlink** prices directly to ensure 100% alignment with Polymarket's resolution criteria.
+<Info>
+  **"Latest"** means the most recently created markets, sorted by start time. As new markets are created, older ones rotate out of the free-plan window.
+</Info>
 
-### Market Resolution
-For **5-minute** and **15-minute** markets, PolyBackTest aligns with **Polymarket**, which uses **Chainlink** as its oracle for resolution. Since we now track Chainlink prices for these markets, our data is fully consistent with the settlement prices.
+### What Does This Mean?
 
-**Importantly:**
-- **Orderbooks**: Are captured directly from the market and are consistent.
-- **Resolution Data**: We use the official resolution data, so settlement outcomes are accurate.
-- **Price Accuracy**: With Chainlink integration for short-term markets, price data is highly accurate to the settlement source.
+- **List Markets (`/v2/markets`)**: Free users will only see markets within the allowed window. If you request more than the limit (e.g., `limit=60` for 5m markets), the API will return only the latest 50 and include a `warning` field in the response.
+- **Get Market by ID/Slug**: Accessing a market outside your plan's window returns a `402` error.
+- **Snapshots**: Free users can access all snapshots for any market **within** their allowed window. Accessing snapshots for a market outside the window returns a `402` error.
+
+### Check Your Limits
+
+Use the `/v2/limits` endpoint to view your current plan and limits:
+
+```bash
+curl -X GET "https://api.polybacktest.com/v2/limits" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json Example Response
+{
+  "plan": "free",
+  "limits": {
+    "5m_markets": 50,
+    "15m_markets": 50,
+    "1h_markets": 24,
+    "4h_markets": 24,
+    "24h_markets": 5,
+    "snapshots": null
+  }
+}
+```
+
+<Note>
+  A `null` value for `snapshots` means there is no cap on the number of snapshots you can retrieve per market — as long as the market itself is within your plan's access window.
+</Note>
+
+### Handling Limit Responses
+
+When your request is clamped by plan limits, the API response will include a `warning` field:
+
+```json
+{
+  "markets": [...],
+  "total": 8500,
+  "limit": 60,
+  "offset": 0,
+  "warning": "Free plan limit reached. Showing latest 50 of 50 allowed markets. Upgrade to Pro to view all markets."
+}
+```
+
+When you try to access a market outside your plan window, you'll receive a `402` error:
+
+```json
+{
+  "detail": {
+    "error": "upgrade_required",
+    "message": "This market is outside your plan's access window. Upgrade to Pro for unlimited access to all market history and snapshots.",
+    "current_plan": "free"
+  }
+}
+```
+
+<Tip>
+  To handle these gracefully in your code, check for the `warning` field in successful responses and handle `402` status codes for individual market/snapshot requests.
+</Tip>

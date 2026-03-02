@@ -1,0 +1,105 @@
+---
+title: 'Fetching Data & Pagination'
+description: 'Learn how to efficiently query data using time filters and pagination'
+icon: 'filter'
+---
+
+## Time Filtering
+
+Most endpoints in the PolyBackTest API return time-series data, such as market snapshots, orderbooks, and trades. To query specific time periods, you can use time filters.
+
+The API accepts timestamps in two formats:
+1. **Millisecond Epoch**: e.g., `1709006400000` (recommended for programmatic access)
+2. **ISO8601 String**: e.g., `2026-02-27T04:00:00Z` (useful for manual testing)
+
+### Query Parameters
+
+For time-series endpoints, the following parameters are used:
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `start_time` | string \| integer | Return records created **after** this timestamp. |
+| `end_time` | string \| integer | Return records created **before** this timestamp. (Defaults to current time on Binance endpoints if omitted). |
+
+**Example:** Fetching snapshots for a specific market in January 2026
+```bash
+curl "https://test.api.polybacktest.com/v2/markets/1051520/snapshots?start_time=2026-01-01T00:00:00Z&end_time=2026-01-31T23:59:59Z"
+```
+
+**Example:** Fetching the last hour of spot trades using epoch timestamps
+```bash
+curl "https://test.api.polybacktest.com/v2/spot/trades?start_time=1708992000000&end_time=1708995600000"
+```
+
+---
+
+## Pagination
+
+Because queries can match millions of records, the API uses limit/offset pagination to return data in manageable chunks. You must use pagination when backfilling large historical datasets.
+
+| Parameter | Default | Maximum | Description |
+| :--- | :--- | :--- | :--- |
+| `limit` | Varies | Varies | The number of results to return per page. |
+| `offset` | 0 | - | The number of results to skip before starting to return data. |
+
+### Maximum Limits
+
+Different endpoints have different maximum `limit` values to protect system performance:
+- **List Markets**: Max `100` markets per request.
+- **Snapshots & Binance Data**: Max `1000` records per request.
+
+### How to Paginate
+
+To fetch all data for a specific time range, you must loop through the results by incrementing the `offset` parameter until the API returns fewer records than your requested `limit` (or an empty list).
+
+**Example Python Pagination Loop:**
+
+```python
+import requests
+
+market_id = "1051520"
+base_url = f"https://test.api.polybacktest.com/v2/markets/{market_id}/snapshots"
+headers = {"X-API-Key": "YOUR_API_KEY"}
+
+limit = 1000
+offset = 0
+all_snapshots = []
+
+while True:
+    params = {
+        "limit": limit,
+        "offset": offset,
+        "start_time": "2026-01-01T00:00:00Z" # Optional time filter
+    }
+    
+    response = requests.get(base_url, headers=headers, params=params).json()
+    snapshots = response.get("snapshots", [])
+    
+    if not snapshots:
+        break # No more data
+        
+    all_snapshots.extend(snapshots)
+    offset += limit
+    
+    # If we received fewer records than the limit, we've reached the end
+    if len(snapshots) < limit:
+        break
+
+print(f"Total snapshots fetched: {len(all_snapshots)}")
+```
+
+---
+
+## Best Practices
+
+### 1. Polling for Live Data vs. Backfilling
+- **Backfilling History:** When pulling days or weeks of historical data, always provide explicit `start` and `end` bounds. Use the maximum `limit` (1000) and step through the data using `offset`.
+- **Polling for Live Data:** When continuously polling for the latest updates, omit the `end` parameter and just use `limit=1` to get the most recent record, or dynamically update your `start` parameter based on the timestamp of the last record you received.
+
+### 2. Including Orderbooks Wisely
+For the Polymarket snapshot endpoint, orderbooks are excluded by default (`include_orderbook=false`) to keep response sizes small and fast.
+- If you only need price histories (OHLC-style analysis), keep this set to `false`.
+- If you are backtesting liquidity or order flow strategies, set `include_orderbook=true`, but expect significantly larger JSON payload sizes. Consider using smaller `limit` values to avoid timeout errors.
+
+### 3. Millisecond Epoch
+While ISO8601 strings are human-readable and great for manual testing, using **millisecond epoch** integers is recommended for production systems. It avoids time zone ambiguity and is faster to process.

@@ -1,11 +1,11 @@
 ---
 title: "Introduction"
-description: "Access real-time prediction market data and historical snapshots for backtesting"
+description: "Access real-time prediction market data, BTC price feeds, and historical snapshots for backtesting"
 ---
 
 ## Welcome to PolyBackTest
 
-PolyBackTest provides comprehensive access to prediction market data, enabling you to build trading strategies, analyze market movements, and backtest your ideas with historical snapshots.
+PolyBackTest provides comprehensive access to prediction market data and cryptocurrency price feeds, enabling you to build trading strategies, analyze market movements, and backtest your ideas with historical snapshots.
 
 
 ## What you can build
@@ -37,14 +37,27 @@ PolyBackTest provides comprehensive access to prediction market data, enabling y
     icon="magnifying-glass-chart"
     href="/api-reference"
   >
-    Study market behavior and correlations with BTC price movements.
+    Study market behavior and correlations with crypto price movements.
   </Card>
 </Columns>
 
-## Quick example
+## Quick examples
 
-Fetch the latest Bitcoin prediction markets:
+Fetch the latest BTC prediction markets:
 
 ```bash
-curl -X GET "[https://api.polybacktest.com/v1/markets?market_type=24hr&limit=10](https://api.polybacktest.com/v1/markets?market_type=24hr&limit=10)" \
-  -H "X-API-Key: your_api_key"
+curl "https://api.polybacktest.com/v2/markets?coin=btc&market_type=5m&limit=10" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Get the latest BTC spot orderbook:
+
+```bash
+curl "https://api.polybacktest.com/v2/spot/latest?coin=btc" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Info>
+All endpoints accept an optional `coin` query parameter (default: `btc`).
+Currently supported coins include `btc` and `eth`, with more (like `sol`) to be added.
+</Info>

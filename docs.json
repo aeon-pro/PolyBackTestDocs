@@ -1,82 +1,148 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "PolyBackTest",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
-  },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "tabs": [
-      {
-        "tab": "Guides",
-        "pages": [
-          "index",
-          "api-keys",
-          "rate-limits"
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "openapi": "api-reference/openapi.json"
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "API Reference",
-          "href": "/api-reference",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Dashboard",
-          "href": "https://polybacktest.com/dashboard",
-          "icon": "gauge"
-        },
-        {
-          "anchor": "Website",
-          "href": "https://polybacktest.com",
-          "icon": "globe"
+    "$schema": "https://mintlify.com/docs.json",
+    "theme": "mint",
+    "name": "PolyBackTest",
+    "colors": {
+        "primary": "#16A34A",
+        "light": "#07C983",
+        "dark": "#15803D"
+    },
+    "favicon": "/favicon.svg",
+    "navigation": {
+        "tabs": [
+            {
+                "tab": "Guides",
+                "pages": [
+                    "index",
+                    "api-keys",
+                    "rate-limits",
+                    "data-retention",
+                    "fetching-data",
+                    "available-data"
+                ]
+            },
+            {
+                "tab": "API Reference",
+                "pages": [
+                    "api-reference/authorization",
+                    {
+                        "group": "Polymarket Up/Down Markets",
+                        "pages": [
+                            {
+                                "group": "Markets",
+                                "expanded": true,
+                                "pages": [
+                                    "api-reference/endpoint/list-markets",
+                                    "api-reference/endpoint/get-market",
+                                    "api-reference/endpoint/get-market-by-slug"
+                                ]
+                            },
+                            {
+                                "group": "Snapshots",
+                                "expanded": true,
+                                "pages": [
+                                    "api-reference/endpoint/get-snapshots",
+                                    "api-reference/endpoint/get-snapshot-at"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "group": "Binance Data",
+                        "pages": [
+                            {
+                                "group": "Spot",
+                                "expanded": true,
+                                "pages": [
+                                    "api-reference/endpoint/spot-latest",
+                                    "api-reference/endpoint/spot-orderbooks",
+                                    "api-reference/endpoint/spot-trades"
+                                ]
+                            },
+                            {
+                                "group": "Futures",
+                                "expanded": true,
+                                "pages": [
+                                    "api-reference/endpoint/futures-latest",
+                                    "api-reference/endpoint/futures-orderbooks",
+                                    "api-reference/endpoint/futures-trades"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "group": "Older Versions",
+                        "pages": [
+                            {
+                                "group": "v1",
+                                "expanded": false,
+                                "pages": [
+                                    "api-reference/endpoint/v1-list-markets",
+                                    "api-reference/endpoint/v1-get-market",
+                                    "api-reference/endpoint/v1-get-market-by-slug",
+                                    "api-reference/endpoint/v1-get-snapshots",
+                                    "api-reference/endpoint/v1-get-snapshot-at"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "global": {
+            "anchors": [
+                {
+                    "anchor": "API Reference",
+                    "href": "/api-reference",
+                    "icon": "book-open-cover"
+                },
+                {
+                    "anchor": "Dashboard",
+                    "href": "https://polybacktest.com/dashboard",
+                    "icon": "gauge"
+                },
+                {
+                    "anchor": "Website",
+                    "href": "https://polybacktest.com",
+                    "icon": "globe"
+                }
+            ]
         }
-      ]
+    },
+    "logo": {
+        "light": "/logo/light.svg",
+        "dark": "/logo/dark.svg"
+    },
+    "navbar": {
+        "links": [
+            {
+                "label": "Support",
+                "href": "mailto:support@polybacktest.com"
+            }
+        ],
+        "primary": {
+            "type": "button",
+            "label": "Get Started",
+            "href": "https://polybacktest.com/dashboard"
+        }
+    },
+    "contextual": {
+        "options": [
+            "copy",
+            "view",
+            "chatgpt",
+            "claude",
+            "perplexity",
+            "mcp",
+            "cursor",
+            "vscode"
+        ]
+    },
+    "footer": {
+        "socials": {
+            "x": "https://x.com/",
+            "github": "https://github.com/mintlify",
+            "linkedin": "https://linkedin.com/company/mintlify"
+        }
     }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:support@polybacktest.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Get Started",
-      "href": "https://polybacktest.com/dashboard"
-    }
-  },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
-  }
 }

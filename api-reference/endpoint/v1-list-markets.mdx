@@ -1,0 +1,18 @@
+---
+title: 'List All Markets'
+openapi: 'GET /v1/markets'
+---
+
+<Warning>
+**Legacy API Version**: This `/v1/` endpoint is deprecated. It does not support newer features, time filters, or additional coins (like ETH, SOL) outside of BTC. It will be discontinued soon. Please migrate to the `/v2/` equivalent endpoints.
+</Warning>
+
+## Overview
+
+This endpoint returns all available prediction markets. Use the filtering parameters to narrow down results by market type or resolution status.
+
+<Note>Markets are sorted by start time in descending order, so you'll see the newest markets first.</Note>
+
+<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>
+
+<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>

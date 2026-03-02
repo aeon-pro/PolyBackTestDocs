@@ -1,0 +1,76 @@
+---
+title: 'Data Retention & Scale'
+description: 'Data coverage, retention periods, and collection frequency'
+icon: 'database'
+---
+
+## Overview
+
+PolyBackTest maintains high-frequency data across two primary data sources — **Polymarket prediction markets** and **Binance cryptocurrency feeds**. All data is retained for **31 days** with automatic purging.
+
+<Info>
+All endpoints accept an optional `coin` query parameter (default: `btc`). As new assets are added (SOL, XRP, etc.), the same data retention policies will apply.
+</Info>
+
+## Polymarket Up/Down Markets
+
+Historical prediction market data for BTC up/down markets.
+
+| Metric | Value |
+| :--- | :--- |
+| **Retention Period** | 31 days |
+| **Markets Tracked** | 5,000+ |
+| **Total Snapshots** | 60,000,000+ |
+| **Snapshot Frequency** | 8 Snaphots per second per market |
+| **Market Types** | 5m, 15m, 1h, 4h, 24h |
+| **Data Captured** | Prices, order books, BTC price |
+
+### Data Sources & Accuracy
+
+**Bitcoin Price**
+- **Standard Markets (1h, 4h, 24h)**: Sourced directly from **Binance**.
+- **5m & 15m Markets**: Tracked via **Chainlink** prices to ensure 100% alignment with Polymarket's resolution criteria.
+
+**Market Resolution**
+- For **5-minute** and **15-minute** markets, PolyBackTest aligns with **Polymarket**, which uses **Chainlink** as its oracle. Our data is fully consistent with settlement prices.
+
+**Data Consistency**
+- **Orderbooks**: Captured directly from the market — fully consistent.
+- **Resolution Data**: Uses official resolution data — settlement outcomes are accurate.
+- **Price Accuracy**: Chainlink integration for short-term markets ensures high accuracy to the settlement source.
+
+---
+
+## Binance Cryptocurrency Data
+
+Real-time orderbook snapshots and aggregated trade data from Binance.
+
+| Metric | Value |
+| :--- | :--- |
+| **Retention Period** | 31 days |
+| **Orderbook Snapshot Frequency** | ~10 snapshots per second |
+| **Trade Aggregation** | 1-second OHLCV candles |
+| **Markets** | Spot & Futures |
+| **Current Assets** | BTC (more coming soon) |
+| **Data Captured** | Full orderbook depth, OHLCV, volume, trade count |
+
+### Orderbook Snapshots
+
+Each snapshot contains the full 20-level orderbook depth (bids + asks) and the current price, captured approximately **10 times per second** from the Binance WebSocket feed.
+
+```
+~10 snapshots/sec × 86,400 sec/day × 31 days = ~26.7 million snapshots per asset
+```
+
+### Aggregated Trades
+
+Trade data is aggregated into **1-second candles** containing:
+- **OHLCV**: Open, high, low, close, volume
+- **Buy/sell volume split**: Aggressive buy vs. sell volume
+- **Trade count**: Number of trades in the interval
+
+```
+~86,400 trade records/day × 31 days = ~2.6 million trade records per asset
+```
+
+---

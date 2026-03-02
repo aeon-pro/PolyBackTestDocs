@@ -1,11 +1,11 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "PolyDataMine API",
-        "description": "PolyDataMine provides comprehensive, real-time access to prediction market data and historical snapshots. Build trading strategies, perform backtesting, and analyze market movements with our powerful REST API.",
+        "title": "PolyBackTest API",
+        "description": "PolyBackTest provides comprehensive, real-time access to prediction market data and historical snapshots. Build trading strategies, perform backtesting, and analyze market movements with our powerful REST API.",
         "version": "1.0.0",
         "contact": {
-            "name": "PolyDataMine Support",
+            "name": "PolyBackTest Support",
             "url": "https://polybacktest.com",
             "email": "support@polybacktest.com"
         },
@@ -15,12 +15,12 @@
         },
         "x-logo": {
             "url": "https://polybacktest.com/logo.png",
-            "altText": "PolyDataMine Logo"
+            "altText": "PolyBackTest Logo"
         }
     },
     "servers": [
         {
-            "url": "https://api.polybacktest.com",
+            "url": "https://test.api.polybacktest.com",
             "description": "Production API"
         }
     ],
@@ -59,22 +59,33 @@
                 }
             }
         },
-        "/v1/markets": {
+        "/v2/markets": {
             "get": {
                 "tags": [
-                    "v1 - Markets"
+                    "v2 - Markets"
                 ],
                 "summary": "List Markets",
                 "description": "List all markets with pagination.\n\nReturns markets sorted by start_time descending (newest first).",
-                "operationId": "list_markets_v1_markets_get",
+                "operationId": "list_markets_v2_markets_get",
                 "x-mint": {
                     "metadata": {
                         "title": "List All Markets",
                         "description": "Retrieve a paginated list of prediction markets with optional filtering"
                     },
-                    "content": "## Overview\n\nThis endpoint returns all available prediction markets. Use the filtering parameters to narrow down results by market type or resolution status.\n\n<Note>Markets are sorted by start time in descending order, so you'll see the newest markets first.</Note>"
+                    "content": "## Overview\n\nThis endpoint returns all available prediction markets. Use the filtering parameters to narrow down results by market type or resolution status.\n\n<Note>Markets are sorted by start time in descending order, so you'll see the newest markets first.</Note>\n\n<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>\n\n<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>"
                 },
                 "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    },
                     {
                         "name": "limit",
                         "in": "query",
@@ -83,7 +94,6 @@
                             "type": "integer",
                             "maximum": 100,
                             "minimum": 1,
-                            "description": "Number of results to return",
                             "default": 50,
                             "title": "Limit"
                         },
@@ -96,7 +106,6 @@
                         "schema": {
                             "type": "integer",
                             "minimum": 0,
-                            "description": "Pagination offset",
                             "default": 0,
                             "title": "Offset"
                         },
@@ -110,13 +119,18 @@
                             "anyOf": [
                                 {
                                     "type": "string",
-                                    "enum": ["5m", "15m", "1hr", "4hr", "24hr"]
+                                    "enum": [
+                                        "5m",
+                                        "15m",
+                                        "1hr",
+                                        "4hr",
+                                        "24hr"
+                                    ]
                                 },
                                 {
                                     "type": "null"
                                 }
                             ],
-                            "description": "Filter by market type (5m, 15m, 1hr, 4hr, 24hr)",
                             "title": "Market Type"
                         },
                         "description": "Filter by market type (5m, 15m, 1hr, 4hr, 24hr)"
@@ -134,7 +148,563 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "Filter by resolution status",
+                            "title": "Resolved"
+                        },
+                        "description": "Filter by resolution status"
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Start Time"
+                        },
+                        "description": "Filter markets starting after this time \u2014 ms epoch or ISO8601"
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "End Time"
+                        },
+                        "description": "Filter markets starting before this time \u2014 ms epoch or ISO8601"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MarketsListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid API key",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/markets/{market_id}": {
+            "get": {
+                "tags": [
+                    "v2 - Markets"
+                ],
+                "summary": "Get Market By Id",
+                "description": "Get a single market by its ID.",
+                "operationId": "get_market_by_id_v2_markets__market_id__get",
+                "x-mint": {
+                    "metadata": {
+                        "title": "Get Market Details",
+                        "description": "Retrieve detailed information about a specific market by ID"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    },
+                    {
+                        "name": "market_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Market Id"
+                        },
+                        "description": "Market ID",
+                        "example": "1051520"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MarketResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid API key",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Market not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/markets/by-slug/{slug}": {
+            "get": {
+                "tags": [
+                    "v2 - Markets"
+                ],
+                "summary": "Get Market By Slug",
+                "description": "Get a single market by its slug. Slugs are human-readable identifiers for markets.",
+                "operationId": "get_market_by_slug_v2_markets_by_slug__slug__get",
+                "x-mint": {
+                    "metadata": {
+                        "title": "Get Market By Slug",
+                        "description": "Retrieve market details using a human-readable slug identifier"
+                    },
+                    "content": "## Slug Format\n\nMarket slugs follow a consistent naming pattern based on the market type and timing.\n\n**Examples:**\n- `btc-updown-24h-2026-01-01`\n- `btc-updown-1hr-2026-01-01-09`"
+                },
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    },
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Slug"
+                        },
+                        "description": "Market slug",
+                        "example": "btc-updown-24h-2026-01-01"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MarketResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid API key",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Market not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/markets/{market_id}/snapshots": {
+            "get": {
+                "tags": [
+                    "v2 - Snapshots"
+                ],
+                "summary": "Get Market Snapshots",
+                "description": "Get snapshots for a market with pagination.\n\nReturns snapshots sorted by time ascending (oldest first).\nMaximum limit is 1000 snapshots per request.\n\nBy default, include_orderbook=false for lower-latency, lighter responses. Set include_orderbook=true when you need full orderbook depth.",
+                "operationId": "get_market_snapshots_v2_markets__market_id__snapshots_get",
+                "x-mint": {
+                    "metadata": {
+                        "title": "Get Market Snapshots",
+                        "description": "Retrieve paginated historical snapshots for backtesting and analysis"
+                    },
+                    "content": "## Snapshot Data\n\nSnapshots capture the market state at regular intervals, including:\n- **Price data**: Bid/ask prices for UP and DOWN tokens\n- **Order book**: Full order book depth at capture time\n- **BTC price**: Bitcoin price at snapshot time\n\n<Info>Orderbooks are not returned by default (`include_orderbook=false`). Set `include_orderbook=true` when you need full orderbook depth.</Info>\n\n<Tip>Use `start_time` and `end_time` filters to focus on specific time windows for backtesting.</Tip>\n\n<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>\n\n<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>"
+                },
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    },
+                    {
+                        "name": "market_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Market Id"
+                        },
+                        "description": "Market ID",
+                        "example": "1051520"
+                    },
+                    {
+                        "name": "include_orderbook",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "Include Orderbook"
+                        },
+                        "description": "Include full orderbook JSON in each snapshot. Default: false. Set include_orderbook=true when you need full orderbook depth.",
+                        "example": false
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "default": 100,
+                            "title": "Limit"
+                        },
+                        "description": "Number of results to return (max 1000)"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Pagination offset"
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Start Time",
+                            "type": "string"
+                        },
+                        "description": "Filter snapshots after this time \u2014 ms epoch or ISO8601",
+                        "example": "2026-01-01T00:00:00Z"
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "End Time",
+                            "type": "string"
+                        },
+                        "description": "Filter snapshots before this time \u2014 ms epoch or ISO8601",
+                        "example": "2026-01-01T23:59:59Z"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SnapshotsListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid API key",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Market not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/markets/{market_id}/snapshot-at/{timestamp}": {
+            "get": {
+                "tags": [
+                    "v2 - Snapshots"
+                ],
+                "summary": "Get Snapshot At Timestamp",
+                "description": "Get the closest snapshot to a specific timestamp.\n\nReturns the snapshot closest to the given timestamp, but only if it's within \u00b12 seconds. Returns 404 if no snapshot is found within that range.\n\nNote: Snapshots are always returned as an array (containing 0 or 1 element).",
+                "operationId": "get_snapshot_at_timestamp_v2_markets__market_id__snapshot_at__timestamp__get",
+                "x-mint": {
+                    "metadata": {
+                        "title": "Get Snapshot At Timestamp",
+                        "description": "Find the exact market state at a specific point in time"
+                    },
+                    "content": "## Precision Lookup\n\nThis endpoint finds the closest snapshot within a **\u00b12 second tolerance** of your target timestamp. Perfect for:\n- Point-in-time analysis\n- Correlating with external events\n- Backtesting trade entries/exits\n\n<Warning>Returns 404 if no snapshot exists within the 2-second tolerance window.</Warning>"
+                },
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    },
+                    {
+                        "name": "market_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Market Id"
+                        },
+                        "description": "Market ID",
+                        "example": "1051520"
+                    },
+                    {
+                        "name": "timestamp",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time",
+                            "title": "Timestamp"
+                        },
+                        "description": "Target timestamp \u2014 ms epoch or ISO8601",
+                        "example": "2026-01-01T12:30:00Z"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SnapshotAtTimestampResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid API key",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No snapshot found within \u00b12 seconds of timestamp",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/markets": {
+            "get": {
+                "tags": [
+                    "Legacy v1 API"
+                ],
+                "summary": "[Legacy] List Markets",
+                "description": "List all markets with pagination.\n\nReturns markets sorted by start_time descending (newest first).",
+                "operationId": "list_markets_v1_markets_get",
+                "x-mint": {
+                    "metadata": {
+                        "title": "List All Markets",
+                        "description": "Retrieve a paginated list of prediction markets with optional filtering"
+                    },
+                    "content": "<Warning>\nThis is an older legacy version of the API. It is going to be discontinued soon. Please migrate to the `/v2/` equivalent endpoints.\n</Warning>\n\n## Overview\n\nThis endpoint returns all available prediction markets. Use the filtering parameters to narrow down results by market type or resolution status.\n\n<Note>Markets are sorted by start time in descending order, so you'll see the newest markets first.</Note>\n\n<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>\n\n<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>"
+                },
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "default": 50,
+                            "title": "Limit"
+                        },
+                        "description": "Number of results to return"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Pagination offset"
+                    },
+                    {
+                        "name": "market_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "5m",
+                                        "15m",
+                                        "1hr",
+                                        "4hr",
+                                        "24hr"
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Market Type"
+                        },
+                        "description": "Filter by market type (5m, 15m, 1hr, 4hr, 24hr)"
+                    },
+                    {
+                        "name": "resolved",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
                             "title": "Resolved"
                         },
                         "description": "Filter by resolution status"
@@ -177,16 +747,17 @@
         "/v1/markets/{market_id}": {
             "get": {
                 "tags": [
-                    "v1 - Markets"
+                    "Legacy v1 API"
                 ],
-                "summary": "Get Market By Id",
+                "summary": "[Legacy] Get Market By Id",
                 "description": "Get a single market by its ID.",
                 "operationId": "get_market_by_id_v1_markets__market_id__get",
                 "x-mint": {
                     "metadata": {
                         "title": "Get Market Details",
                         "description": "Retrieve detailed information about a specific market by ID"
-                    }
+                    },
+                    "content": "<Warning>\nThis is an older legacy version of the API. It is going to be discontinued soon. Please migrate to the `/v2/` equivalent endpoints.\n</Warning>"
                 },
                 "parameters": [
                     {
@@ -195,7 +766,6 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "description": "Market ID",
                             "title": "Market Id"
                         },
                         "description": "Market ID",
@@ -249,9 +819,9 @@
         "/v1/markets/by-slug/{slug}": {
             "get": {
                 "tags": [
-                    "v1 - Markets"
+                    "Legacy v1 API"
                 ],
-                "summary": "Get Market By Slug",
+                "summary": "[Legacy] Get Market By Slug",
                 "description": "Get a single market by its slug. Slugs are human-readable identifiers for markets.",
                 "operationId": "get_market_by_slug_v1_markets_by_slug__slug__get",
                 "x-mint": {
@@ -259,7 +829,7 @@
                         "title": "Get Market By Slug",
                         "description": "Retrieve market details using a human-readable slug identifier"
                     },
-                    "content": "## Slug Format\n\nMarket slugs follow a consistent naming pattern based on the market type and timing.\n\n**Examples:**\n- `btc-updown-24h-2026-01-01`\n- `btc-updown-1hr-2026-01-01-09`"
+                    "content": "<Warning>\nThis is an older legacy version of the API. It is going to be discontinued soon. Please migrate to the `/v2/` equivalent endpoints.\n</Warning>\n\n## Slug Format\n\nMarket slugs follow a consistent naming pattern based on the market type and timing.\n\n**Examples:**\n- `btc-updown-24h-2026-01-01`\n- `btc-updown-1hr-2026-01-01-09`"
                 },
                 "parameters": [
                     {
@@ -268,7 +838,6 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "description": "Market slug",
                             "title": "Slug"
                         },
                         "description": "Market slug",
@@ -322,9 +891,9 @@
         "/v1/markets/{market_id}/snapshots": {
             "get": {
                 "tags": [
-                    "v1 - Snapshots"
+                    "Legacy v1 API"
                 ],
-                "summary": "Get Market Snapshots",
+                "summary": "[Legacy] Get Market Snapshots",
                 "description": "Get snapshots for a market with pagination.\n\nReturns snapshots sorted by time ascending (oldest first).\nMaximum limit is 1000 snapshots per request.\n\nBy default, include_orderbook=false for lower-latency, lighter responses. Set include_orderbook=true when you need full orderbook depth.",
                 "operationId": "get_market_snapshots_v1_markets__market_id__snapshots_get",
                 "x-mint": {
@@ -332,7 +901,7 @@
                         "title": "Get Market Snapshots",
                         "description": "Retrieve paginated historical snapshots for backtesting and analysis"
                     },
-                    "content": "## Snapshot Data\n\nSnapshots capture the market state at regular intervals, including:\n- **Price data**: Bid/ask prices for UP and DOWN tokens\n- **Order book**: Full order book depth at capture time\n- **BTC price**: Bitcoin price at snapshot time\n\n<Info>Orderbooks are not returned by default (`include_orderbook=false`). Set `include_orderbook=true` when you need full orderbook depth.</Info>\n\n<Tip>Use `start_time` and `end_time` filters to focus on specific time windows for backtesting.</Tip>"
+                    "content": "<Warning>\nThis is an older legacy version of the API. It is going to be discontinued soon. Please migrate to the `/v2/` equivalent endpoints.\n</Warning>\n\n## Snapshot Data\n\nSnapshots capture the market state at regular intervals, including:\n- **Price data**: Bid/ask prices for UP and DOWN tokens\n- **Order book**: Full order book depth at capture time\n- **BTC price**: Bitcoin price at snapshot time\n\n<Info>Orderbooks are not returned by default (`include_orderbook=false`). Set `include_orderbook=true` when you need full orderbook depth.</Info>\n\n<Tip>Use `start_time` and `end_time` filters to focus on specific time windows for backtesting.</Tip>\n\n<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>\n\n<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>"
                 },
                 "parameters": [
                     {
@@ -341,7 +910,6 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "description": "Market ID",
                             "title": "Market Id"
                         },
                         "description": "Market ID",
@@ -353,7 +921,6 @@
                         "required": false,
                         "schema": {
                             "type": "boolean",
-                            "description": "Include full orderbook JSON in each snapshot. Default: false. Set include_orderbook=true when you need full orderbook depth.",
                             "default": false,
                             "title": "Include Orderbook"
                         },
@@ -368,7 +935,6 @@
                             "type": "integer",
                             "maximum": 1000,
                             "minimum": 1,
-                            "description": "Number of results to return (max 1000)",
                             "default": 100,
                             "title": "Limit"
                         },
@@ -381,7 +947,6 @@
                         "schema": {
                             "type": "integer",
                             "minimum": 0,
-                            "description": "Pagination offset",
                             "default": 0,
                             "title": "Offset"
                         },
@@ -401,7 +966,6 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "Filter snapshots after this time (ISO8601)",
                             "title": "Start Time"
                         },
                         "description": "Filter snapshots after this time (ISO8601)",
@@ -421,7 +985,6 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "Filter snapshots before this time (ISO8601)",
                             "title": "End Time"
                         },
                         "description": "Filter snapshots before this time (ISO8601)",
@@ -475,17 +1038,17 @@
         "/v1/markets/{market_id}/snapshot-at/{timestamp}": {
             "get": {
                 "tags": [
-                    "v1 - Snapshots"
+                    "Legacy v1 API"
                 ],
-                "summary": "Get Snapshot At Timestamp",
-                "description": "Get the closest snapshot to a specific timestamp.\n\nReturns the snapshot closest to the given timestamp, but only if it's within ±2 seconds. Returns 404 if no snapshot is found within that range.\n\nNote: Snapshots are always returned as an array (containing 0 or 1 element).",
+                "summary": "[Legacy] Get Snapshot At Timestamp",
+                "description": "Get the closest snapshot to a specific timestamp.\n\nReturns the snapshot closest to the given timestamp, but only if it's within \u00b12 seconds. Returns 404 if no snapshot is found within that range.\n\nNote: Snapshots are always returned as an array (containing 0 or 1 element).",
                 "operationId": "get_snapshot_at_timestamp_v1_markets__market_id__snapshot_at__timestamp__get",
                 "x-mint": {
                     "metadata": {
                         "title": "Get Snapshot At Timestamp",
                         "description": "Find the exact market state at a specific point in time"
                     },
-                    "content": "## Precision Lookup\n\nThis endpoint finds the closest snapshot within a **±2 second tolerance** of your target timestamp. Perfect for:\n- Point-in-time analysis\n- Correlating with external events\n- Backtesting trade entries/exits\n\n<Warning>Returns 404 if no snapshot exists within the 2-second tolerance window.</Warning>"
+                    "content": "<Warning>\nThis is an older legacy version of the API. It is going to be discontinued soon. Please migrate to the `/v2/` equivalent endpoints.\n</Warning>\n\n## Precision Lookup\n\nThis endpoint finds the closest snapshot within a **\u00b12 second tolerance** of your target timestamp. Perfect for:\n- Point-in-time analysis\n- Correlating with external events\n- Backtesting trade entries/exits\n\n<Warning>Returns 404 if no snapshot exists within the 2-second tolerance window.</Warning>"
                 },
                 "parameters": [
                     {
@@ -494,7 +1057,6 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "description": "Market ID",
                             "title": "Market Id"
                         },
                         "description": "Market ID",
@@ -507,7 +1069,6 @@
                         "schema": {
                             "type": "string",
                             "format": "date-time",
-                            "description": "Target timestamp (ISO8601)",
                             "title": "Timestamp"
                         },
                         "description": "Target timestamp (ISO8601)",
@@ -536,7 +1097,7 @@
                         }
                     },
                     "404": {
-                        "description": "No snapshot found within ±2 seconds of timestamp",
+                        "description": "No snapshot found within \u00b12 seconds of timestamp",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -556,6 +1117,442 @@
                         }
                     }
                 }
+            }
+        },
+        "/v2/spot/snapshots": {
+            "get": {
+                "summary": "Get Spot Orderbook Snapshots",
+                "description": "Get historical spot orderbook snapshots with pagination. Timestamps accept millisecond epoch or ISO8601 format.\n\n<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>\n\n<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>",
+                "operationId": "get_spot_snapshots_v2_spot_snapshots_get",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Start"
+                        },
+                        "description": "Start timestamp (ms epoch or ISO8601)"
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "End"
+                        },
+                        "description": "End timestamp (ms epoch or ISO8601, default: now)"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100,
+                            "title": "Limit"
+                        },
+                        "description": "Results per page (1-1000)"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Pagination offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedSnapshots"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "v2 - Spot"
+                ]
+            }
+        },
+        "/v2/spot/latest": {
+            "get": {
+                "summary": "Get Latest Spot Orderbook",
+                "description": "Returns the most recent spot orderbook snapshot.",
+                "operationId": "get_latest_spot_v2_spot_latest_get",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Snapshot"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No snapshot found"
+                    }
+                },
+                "tags": [
+                    "v2 - Spot"
+                ]
+            }
+        },
+        "/v2/futures/snapshots": {
+            "get": {
+                "summary": "Get Futures Orderbook Snapshots",
+                "description": "Get historical futures orderbook snapshots with pagination. Timestamps accept millisecond epoch or ISO8601 format.\n\n<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>\n\n<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>",
+                "operationId": "get_futures_snapshots_v2_futures_snapshots_get",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Start"
+                        },
+                        "description": "Start timestamp (ms epoch or ISO8601)"
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "End"
+                        },
+                        "description": "End timestamp (ms epoch or ISO8601, default: now)"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100,
+                            "title": "Limit"
+                        },
+                        "description": "Results per page (1-1000)"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Pagination offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedSnapshots"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "v2 - Futures"
+                ]
+            }
+        },
+        "/v2/futures/latest": {
+            "get": {
+                "summary": "Get Latest Futures Orderbook",
+                "description": "Returns the most recent futures orderbook snapshot.",
+                "operationId": "get_latest_futures_v2_futures_latest_get",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Snapshot"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No snapshot found"
+                    }
+                },
+                "tags": [
+                    "v2 - Futures"
+                ]
+            }
+        },
+        "/v2/spot/trades": {
+            "get": {
+                "summary": "Get Spot Trades",
+                "description": "Get historical spot aggregated trade data with pagination. Timestamps accept millisecond epoch or ISO8601 format.\n\n<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>\n\n<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>",
+                "operationId": "get_spot_trades_v2_spot_trades_get",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Start"
+                        },
+                        "description": "Start timestamp (ms epoch or ISO8601)"
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "End"
+                        },
+                        "description": "End timestamp (ms epoch or ISO8601, default: now)"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100,
+                            "title": "Limit"
+                        },
+                        "description": "Results per page (1-1000)"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Pagination offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedTrades"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "v2 - Spot"
+                ]
+            }
+        },
+        "/v2/futures/trades": {
+            "get": {
+                "summary": "Get Futures Trades",
+                "description": "Get historical futures aggregated trade data with pagination. Timestamps accept millisecond epoch or ISO8601 format.\n\n<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>\n\n<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>",
+                "operationId": "get_futures_trades_v2_futures_trades_get",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "btc",
+                            "title": "Coin"
+                        },
+                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Start"
+                        },
+                        "description": "Start timestamp (ms epoch or ISO8601)"
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "End"
+                        },
+                        "description": "End timestamp (ms epoch or ISO8601, default: now)"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100,
+                            "title": "Limit"
+                        },
+                        "description": "Results per page (1-1000)"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Pagination offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedTrades"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "v2 - Futures"
+                ]
             }
         }
     },
@@ -578,7 +1575,9 @@
                     }
                 },
                 "type": "object",
-                "required": ["detail"],
+                "required": [
+                    "detail"
+                ],
                 "title": "ErrorResponse",
                 "description": "Standard error response."
             },
@@ -833,47 +1832,71 @@
                     },
                     "btc_price": {
                         "anyOf": [
-                            {"type": "number"},
-                            {"type": "null"}
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ],
                         "title": "BTC Price",
                         "description": "Bitcoin price at the time of snapshot (USD)"
                     },
                     "price_up": {
                         "anyOf": [
-                            {"type": "number"},
-                            {"type": "null"}
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ],
                         "title": "Price Up",
                         "description": "Best price for the UP token (0-1 range)"
                     },
                     "price_down": {
                         "anyOf": [
-                            {"type": "number"},
-                            {"type": "null"}
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ],
                         "title": "Price Down",
                         "description": "Best price for the DOWN token (0-1 range)"
                     },
                     "orderbook_up": {
                         "anyOf": [
-                            {"$ref": "#/components/schemas/OrderBookResponse"},
-                            {"type": "null"}
+                            {
+                                "$ref": "#/components/schemas/OrderBookResponse"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ],
                         "title": "Orderbook Up",
                         "description": "Full order book for the UP token"
                     },
                     "orderbook_down": {
                         "anyOf": [
-                            {"$ref": "#/components/schemas/OrderBookResponse"},
-                            {"type": "null"}
+                            {
+                                "$ref": "#/components/schemas/OrderBookResponse"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ],
                         "title": "Orderbook Down",
                         "description": "Full order book for the DOWN token"
                     }
                 },
                 "type": "object",
-                "required": ["id", "time", "market_id"],
+                "required": [
+                    "id",
+                    "time",
+                    "market_id"
+                ],
                 "title": "SnapshotResponse",
                 "description": "A single market snapshot containing price and order book data."
             },
@@ -897,7 +1920,10 @@
                     }
                 },
                 "type": "object",
-                "required": ["bids", "asks"],
+                "required": [
+                    "bids",
+                    "asks"
+                ],
                 "title": "OrderBookResponse",
                 "description": "Order book containing bid and ask orders."
             },
@@ -915,7 +1941,10 @@
                     }
                 },
                 "type": "object",
-                "required": ["price", "size"],
+                "required": [
+                    "price",
+                    "size"
+                ],
                 "title": "OrderBookEntry",
                 "description": "A single order in the order book."
             },
@@ -1017,38 +2046,222 @@
                     "type"
                 ],
                 "title": "ValidationError"
+            },
+            "Snapshot": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "price": {
+                        "type": "number",
+                        "title": "Price"
+                    },
+                    "bids": {
+                        "title": "Bids"
+                    },
+                    "asks": {
+                        "title": "Asks"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "title": "Timestamp",
+                        "description": "Source timestamp from Binance (ISO8601)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "price",
+                    "bids",
+                    "asks",
+                    "timestamp"
+                ],
+                "title": "Snapshot"
+            },
+            "PaginatedSnapshots": {
+                "properties": {
+                    "snapshots": {
+                        "items": {
+                            "$ref": "#/components/schemas/Snapshot"
+                        },
+                        "type": "array",
+                        "title": "Snapshots"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total",
+                        "description": "Total number of matching snapshots"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "Limit",
+                        "description": "Results per page"
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "title": "Offset",
+                        "description": "Current pagination offset"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "snapshots",
+                    "total",
+                    "limit",
+                    "offset"
+                ],
+                "title": "PaginatedSnapshots"
+            },
+            "Trade": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "price_open": {
+                        "type": "number",
+                        "title": "Price Open"
+                    },
+                    "price_high": {
+                        "type": "number",
+                        "title": "Price High"
+                    },
+                    "price_low": {
+                        "type": "number",
+                        "title": "Price Low"
+                    },
+                    "price_close": {
+                        "type": "number",
+                        "title": "Price Close"
+                    },
+                    "total_volume": {
+                        "type": "number",
+                        "title": "Total Volume"
+                    },
+                    "aggressive_buy_volume": {
+                        "type": "number",
+                        "title": "Aggressive Buy Volume"
+                    },
+                    "aggressive_sell_volume": {
+                        "type": "number",
+                        "title": "Aggressive Sell Volume"
+                    },
+                    "num_trades": {
+                        "type": "integer",
+                        "title": "Num Trades"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "title": "Timestamp",
+                        "description": "Source timestamp from Binance (ISO8601)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "price_open",
+                    "price_high",
+                    "price_low",
+                    "price_close",
+                    "total_volume",
+                    "aggressive_buy_volume",
+                    "aggressive_sell_volume",
+                    "num_trades",
+                    "timestamp"
+                ],
+                "title": "Trade"
+            },
+            "PaginatedTrades": {
+                "properties": {
+                    "trades": {
+                        "items": {
+                            "$ref": "#/components/schemas/Trade"
+                        },
+                        "type": "array",
+                        "title": "Trades"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total",
+                        "description": "Total number of matching trades"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "Limit",
+                        "description": "Results per page"
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "title": "Offset",
+                        "description": "Current pagination offset"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "trades",
+                    "total",
+                    "limit",
+                    "offset"
+                ],
+                "title": "PaginatedTrades"
             }
         }
     },
     "tags": [
         {
-            "name": "Health",
-            "description": "Health check endpoints for monitoring service availability. No authentication required.",
-            "x-displayName": "Health"
+            "name": "Health"
         },
         {
-            "name": "v1 - Markets",
-            "description": "**API v1** - Access prediction market data including market details, resolution status, and trading parameters. All endpoints require API key authentication.",
-            "x-displayName": "Markets"
+            "name": "v2 - Markets"
         },
         {
-            "name": "v1 - Snapshots",
-            "description": "**API v1** - Retrieve historical market snapshots for backtesting and analysis. Snapshots include full order book depth and price data. All endpoints require API key authentication.",
-            "x-displayName": "Snapshots"
+            "name": "v2 - Snapshots"
+        },
+        {
+            "name": "Legacy v1 API",
+            "x-mint": {
+                "expanded": false
+            }
+        },
+        {
+            "name": "v1 - Markets"
+        },
+        {
+            "name": "v1 - Snapshots"
         }
     ],
     "externalDocs": {
-        "description": "PolyDataMine Documentation",
+        "description": "PolyBackTest Documentation",
         "url": "https://polybacktest.com/docs"
     },
     "x-tagGroups": [
         {
             "name": "System",
-            "tags": ["Health"]
+            "tags": [
+                "Health"
+            ]
         },
         {
-            "name": "API v1",
-            "tags": ["v1 - Markets", "v1 - Snapshots"]
+            "name": "API v2",
+            "tags": [
+                "v2 - Markets",
+                "v2 - Snapshots"
+            ]
+        },
+        {
+            "name": "Legacy v1 API",
+            "tags": [
+                "Legacy v1 API",
+                "v1 - Markets",
+                "v1 - Snapshots"
+            ],
+            "x-mintlify": {
+                "expanded": false
+            },
+            "x-mint": {
+                "expanded": false
+            }
         }
     ]
 }

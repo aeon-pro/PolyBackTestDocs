@@ -1,0 +1,23 @@
+---
+title: 'Get Market Snapshots'
+openapi: 'GET /v1/markets/{market_id}/snapshots'
+---
+
+<Warning>
+**Legacy API Version**: This `/v1/` endpoint is deprecated. It does not support newer features, time filters, or additional coins (like ETH, SOL) outside of BTC. It will be discontinued soon. Please migrate to the `/v2/` equivalent endpoints.
+</Warning>
+
+## Snapshot Data
+
+Snapshots capture the market state at regular intervals, including:
+- **Price data**: Bid/ask prices for UP and DOWN tokens
+- **Order book**: Full order book depth at capture time
+- **BTC price**: Bitcoin price at snapshot time
+
+<Info>Orderbooks are not returned by default (`include_orderbook=false`). Set `include_orderbook=true` when you need full orderbook depth.</Info>
+
+<Tip>Use `start_time` and `end_time` filters to focus on specific time windows for backtesting.</Tip>
+
+<Info>Learn how to query effectively using time filters and pagination limits in our [Fetching Data & Pagination](/fetching-data) guide.</Info>
+
+<Info>Check the [Available Data & Markets](/available-data) guide to see which market types are supported for each coin.</Info>
