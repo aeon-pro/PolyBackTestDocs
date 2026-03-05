@@ -81,10 +81,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     },
                     {
                         "name": "limit",
@@ -228,10 +228,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     },
                     {
                         "name": "market_id",
@@ -311,10 +311,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     },
                     {
                         "name": "slug",
@@ -394,10 +394,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     },
                     {
                         "name": "market_id",
@@ -554,10 +554,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     },
                     {
                         "name": "market_id",
@@ -1131,10 +1131,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     },
                     {
                         "name": "start_time",
@@ -1221,10 +1221,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     }
                 ],
                 "responses": {
@@ -1259,10 +1259,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     },
                     {
                         "name": "start_time",
@@ -1349,10 +1349,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     }
                 ],
                 "responses": {
@@ -1387,10 +1387,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     },
                     {
                         "name": "start_time",
@@ -1477,10 +1477,10 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "btc",
+                            "default": null,
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query (default: btc). Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. **MANDATORY**: Supported coins include btc, eth. New coins added as they become available."
                     },
                     {
                         "name": "start_time",
