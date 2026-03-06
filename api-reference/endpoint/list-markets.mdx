@@ -3,6 +3,12 @@ title: 'List All Markets'
 openapi: 'GET /v2/markets'
 ---
 
+<ParamField query="coin" type="string" required>
+  Cryptocurrency to query. New coins added as they become available.
+
+  Available values: `btc`, `eth`
+</ParamField>
+
 ## Overview
 
 This endpoint returns all available prediction markets. Use the filtering parameters to narrow down results by market type or resolution status.

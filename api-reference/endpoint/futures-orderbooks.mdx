@@ -2,3 +2,9 @@
 title: 'Get Futures Orderbooks'
 openapi: 'GET /v2/futures/snapshots'
 ---
+
+<ParamField query="coin" type="string" required>
+  Cryptocurrency to query. New coins added as they become available.
+
+  Available values: `btc`, `eth`
+</ParamField>

@@ -2,3 +2,9 @@
 title: 'Get Spot Orderbooks'
 openapi: 'GET /v2/spot/snapshots'
 ---
+
+<ParamField query="coin" type="string" required>
+  Cryptocurrency to query. New coins added as they become available.
+
+  Available values: `btc`, `eth`
+</ParamField>
