@@ -1,6 +1,6 @@
 ---
 title: "Introduction"
-description: "Access real-time prediction market data, BTC price feeds, and historical snapshots for backtesting"
+description: "Access real-time prediction market data, crypto price feeds, and historical snapshots for backtesting"
 ---
 
 ## Welcome to PolyBackTest
@@ -59,9 +59,13 @@ curl "https://api.polybacktest.com/v2/spot/latest?coin=btc" \
 
 <Info>
 All endpoints require a `coin` query parameter.
-Currently supported coins include `btc` and `eth`, with more (like `sol`) to be added.
+Currently supported coins: `btc`, `eth`, `sol`.
 </Info>
 
 <Warning>
-**ETH data collection started on 2026-03-02T10:20:00Z.** Full 31-day historical coverage for Ethereum is not yet available.
+**ETH data collection started on 2026-03-02** Full 31-day historical coverage for Ethereum is not yet available.
+</Warning>
+
+<Warning>
+**SOL data collection started on 2026-03-15.** Full 31-day historical coverage for Solana is not yet available.
 </Warning>

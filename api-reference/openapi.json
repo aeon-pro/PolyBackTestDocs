@@ -83,11 +83,12 @@
                             "type": "string",
                             "enum": [
                                 "btc",
-                                "eth"
+                                "eth",
+                                "sol"
                             ],
                             "title": "Coin"
                         },
-                        "description": "Cryptocurrency to query. Supported coins include btc, eth. New coins added as they become available."
+                        "description": "Cryptocurrency to query. Supported coins: btc, eth, sol."
                     },
                     {
                         "name": "limit",

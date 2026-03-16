@@ -44,9 +44,19 @@ If you exceed your rate limit, the API will return a `429` error:
 }
 ```
 
+## Coin Access by Plan
+
+ETH and SOL data is available exclusively to **Pro** plan users. Free-plan users can only query BTC data. Attempting to query `coin=eth` or `coin=sol` on a free plan will return a `402` error:
+
+```json
+{
+  "error": "ETH data is available exclusively for Pro plan users. Upgrade to Pro to access ETH markets, orderbooks, and trades."
+}
+```
+
 ## Plan-Based Market Limits
 
-Access to market data depends on your plan. Free-plan users can access a limited window of the **most recent** markets for each timeframe. Pro users have **unlimited** access.
+Access to market data depends on your plan. Free-plan users can access a limited window of the **most recent** BTC markets for each timeframe. Pro users have **unlimited** access to all coins.
 
 ### Free Plan Limits
 

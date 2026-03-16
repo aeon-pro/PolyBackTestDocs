@@ -9,16 +9,20 @@ icon: 'database'
 PolyBackTest maintains high-frequency data across two primary data sources — **Polymarket prediction markets** and **Binance cryptocurrency feeds**. All data is retained for **31 days** with automatic purging.
 
 <Info>
-All endpoints require a `coin` query parameter. Supported coins include `btc` and `eth`. As new assets are added (SOL, XRP, etc.), the same data retention policies will apply.
+All endpoints require a `coin` query parameter. Supported coins: `btc`, `eth`, `sol`. As new assets are added, the same data retention policies will apply.
 </Info>
 
 <Warning>
-**ETH data collection started on 2026-03-02T10:20:00Z.** Full 31-day historical coverage for Ethereum is not yet available.
+**ETH data collection started on 2026-03-02** Full 31-day historical coverage for Ethereum is not yet available.
+</Warning>
+
+<Warning>
+**SOL data collection started on 2026-03-16.** Full 31-day historical coverage for Solana is not yet available.
 </Warning>
 
 ## Polymarket Up/Down Markets
 
-Historical prediction market data for BTC up/down markets.
+Historical prediction market data for crypto up/down markets (BTC, ETH, SOL).
 
 | Metric | Value |
 | :--- | :--- |
@@ -27,11 +31,11 @@ Historical prediction market data for BTC up/down markets.
 | **Total Snapshots** | 60,000,000+ |
 | **Snapshot Frequency** | 8 Snaphots per second per market |
 | **Market Types** | 5m, 15m, 1h, 4h, 24h |
-| **Data Captured** | Prices, order books, BTC price |
+| **Data Captured** | Prices, order books, crypto price (BTC, ETH, SOL) |
 
 ### Data Sources & Accuracy
 
-**Bitcoin Price**
+**Crypto Prices (BTC, ETH, SOL)**
 - **Standard Markets (1h, 4h, 24h)**: Sourced directly from **Binance**.
 - **5m & 15m Markets**: Tracked via **Chainlink** prices to ensure 100% alignment with Polymarket's resolution criteria.
 
@@ -55,7 +59,7 @@ Real-time orderbook snapshots and aggregated trade data from Binance.
 | **Orderbook Snapshot Frequency** | ~10 snapshots per second |
 | **Trade Aggregation** | 1-second OHLCV candles |
 | **Markets** | Spot & Futures |
-| **Current Assets** | BTC (more coming soon) |
+| **Current Assets** | BTC, ETH, SOL |
 | **Data Captured** | Full orderbook depth, OHLCV, volume, trade count |
 
 ### Orderbook Snapshots

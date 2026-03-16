@@ -8,24 +8,30 @@ icon: 'chart-pie'
 
 Currently, the PolyBackTest API tracks Polymarket prediction markets for the following cryptocurrencies:
 
-| Coin | Query Parameter `coin` | Supported Market Types |
-| :--- | :--- | :--- |
-| **Bitcoin** | `btc` | `5m`, `15m`, `1hr`, `4hr`, `24hr` |
-| **Ethereum**| `eth` | `5m`, `15m`, `1hr` |
+| Coin | Query Parameter `coin` | Supported Market Types | Plan |
+| :--- | :--- | :--- | :--- |
+| **Bitcoin** | `btc` | `5m`, `15m`, `1hr`, `4hr`, `24hr` | Free & Pro |
+| **Ethereum**| `eth` | `5m`, `15m`, `1hr` | Pro only |
+| **Solana**  | `sol` | `5m`, `15m`, `1hr` | Pro only |
 
 <Info>
-As new assets (like SOL or XRP) are added to the platform, their supported market types will be listed here.
+As new assets (like XRP) are added to the platform, their supported market types will be listed here.
 </Info>
 
 <Warning>
-**ETH data collection started on 2026-03-02T10:20:00Z.** Full 31-day historical coverage for Ethereum is not yet available.
+**ETH data collection started on 2026-03-02** Full 31-day historical coverage for Ethereum is not yet available.
+</Warning>
+
+<Warning>
+**SOL data collection started on 2026-03-16.** Full 31-day historical coverage for Solana is not yet available.
 </Warning>
 
 ## Binance Data
 
 Real-time orderbook snapshots and aggregated trades from Binance are also tracked for the supported coins:
 
-| Coin | Query Parameter `coin` | Spot Data | Futures Data |
-| :--- | :--- | :--- | :--- |
-| **Bitcoin** | `btc` | ✅ | ✅ |
-| **Ethereum**| `eth` | ✅ | ✅ |
+| Coin | Query Parameter `coin` | Spot Data | Futures Data | Plan |
+| :--- | :--- | :--- | :--- | :--- |
+| **Bitcoin** | `btc` | ✅ | ✅ | Free & Pro |
+| **Ethereum**| `eth` | ✅ | ✅ | Pro only |
+| **Solana**  | `sol` | ✅ | ✅ | Pro only |

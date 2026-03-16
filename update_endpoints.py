@@ -7,7 +7,7 @@ files = glob.glob(os.path.join(directory, "*.mdx"))
 
 warning = """
 <Warning>
-**ETH data collection started on 2026-03-02T10:20:00Z.** Full 31-day historical coverage for Ethereum is not yet available.
+**ETH data collection started on 2026-03-02** Full 31-day historical coverage for Ethereum is not yet available.
 </Warning>
 """
 
