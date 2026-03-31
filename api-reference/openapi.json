@@ -1636,7 +1636,7 @@
                         "format": "date-time",
                         "title": "End Time"
                     },
-                    "btc_price_start": {
+                    "{coin}_price_start": {
                         "anyOf": [
                             {
                                 "type": "number"
@@ -1645,7 +1645,8 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Btc Price Start"
+                        "title": "{coin}_price_start",
+                        "description": "Coin price (USD) at market start. Field name depends on the coin queried: btc_price_start, eth_price_start, sol_price_start, etc."
                     },
                     "condition_id": {
                         "anyOf": [
@@ -1713,7 +1714,7 @@
                         ],
                         "title": "Final Liquidity"
                     },
-                    "btc_price_end": {
+                    "{coin}_price_end": {
                         "anyOf": [
                             {
                                 "type": "number"
@@ -1722,7 +1723,8 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Btc Price End"
+                        "title": "{coin}_price_end",
+                        "description": "Coin price (USD) at market end/resolution. Field name depends on the coin queried: btc_price_end, eth_price_end, sol_price_end, etc."
                     },
                     "resolved_at": {
                         "anyOf": [
@@ -1824,7 +1826,7 @@
                         "title": "Market Id",
                         "description": "ID of the market this snapshot belongs to"
                     },
-                    "btc_price": {
+                    "{coin}_price": {
                         "anyOf": [
                             {
                                 "type": "number"
@@ -1833,8 +1835,8 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "BTC Price",
-                        "description": "Bitcoin price at the time of snapshot (USD)"
+                        "title": "{coin}_price",
+                        "description": "Coin price at the time of snapshot (USD). Field name depends on the coin queried: btc_price, eth_price, sol_price, etc."
                     },
                     "price_up": {
                         "anyOf": [

@@ -12,7 +12,7 @@ openapi: 'GET /v1/markets/{market_id}/snapshots'
 Snapshots capture the market state at regular intervals, including:
 - **Price data**: Bid/ask prices for UP and DOWN tokens
 - **Order book**: Full order book depth at capture time
-- **BTC price**: Bitcoin price at snapshot time
+- **Coin price**: Cryptocurrency price at snapshot time (field name varies by coin: `btc_price`, `eth_price`, `sol_price`, etc.)
 
 <Info>Orderbooks are not returned by default (`include_orderbook=false`). Set `include_orderbook=true` when you need full orderbook depth.</Info>
 
