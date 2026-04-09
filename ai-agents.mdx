@@ -1,0 +1,124 @@
+---
+title: 'AI Agents'
+description: 'Give any LLM or autonomous agent full access to prediction market data with a single line in your system prompt.'
+icon: 'robot'
+---
+
+## Overview
+
+PolyBackTest provides a machine-readable API reference designed specifically for LLM consumption. Add one line to your agent's system prompt and it can autonomously discover endpoints, authenticate, paginate results, and build trading strategies.
+
+This works with any LLM or agent framework — Claude, GPT, Gemini, LangChain, CrewAI, AutoGen, or your own custom agent.
+
+## How It Works
+
+<Steps>
+  <Step title="Get an API Key">
+    Create a key in your [Dashboard](https://polybacktest.com/dashboard). Your agent will use this to authenticate all requests.
+  </Step>
+  <Step title="Add the System Prompt">
+    Paste the instruction below into your agent's system prompt or context window. It points to a machine-readable reference document that contains everything the agent needs.
+  </Step>
+  <Step title="Let It Query">
+    Your agent can now discover endpoints, understand response schemas, paginate results, and build strategies autonomously.
+  </Step>
+</Steps>
+
+## System Prompt
+
+Copy this into your agent's system prompt or tool configuration. The linked document contains complete endpoint specs, authentication details, request examples, and response schemas.
+
+<CodeGroup>
+```text System Prompt
+You have access to the PolyBackTest Data API for querying real-time and historical prediction market data, cryptocurrency orderbooks, and aggregated trades. For complete endpoint documentation, authentication, parameter reference, response schemas, and usage examples, refer to: https://polybacktest.com/llms
+```
+
+```python Python Agent Example
+import openai
+
+client = openai.OpenAI()
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {
+            "role": "system",
+            "content": (
+                "You have access to the PolyBackTest Data API for querying "
+                "real-time and historical prediction market data, cryptocurrency "
+                "orderbooks, and aggregated trades. For complete endpoint "
+                "documentation, authentication, parameter reference, response "
+                "schemas, and usage examples, refer to: "
+                "https://polybacktest.com/llms"
+            ),
+        },
+        {
+            "role": "user",
+            "content": "Get the latest BTC prediction markets and their snapshots",
+        },
+    ],
+)
+```
+
+```typescript TypeScript Agent Example
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic();
+
+const message = await client.messages.create({
+  model: "claude-sonnet-4-20250514",
+  max_tokens: 4096,
+  system:
+    "You have access to the PolyBackTest Data API for querying " +
+    "real-time and historical prediction market data, cryptocurrency " +
+    "orderbooks, and aggregated trades. For complete endpoint " +
+    "documentation, authentication, parameter reference, response " +
+    "schemas, and usage examples, refer to: " +
+    "https://polybacktest.com/llms",
+  messages: [
+    {
+      role: "user",
+      content: "Get the latest BTC prediction markets and their snapshots",
+    },
+  ],
+});
+```
+</CodeGroup>
+
+<Tip>
+  The `https://polybacktest.com/llms` URL returns a plain-text markdown document optimized for LLM context windows. It includes all endpoints, parameters, authentication instructions, and response schemas in a compact format.
+</Tip>
+
+## What Your Agent Gets
+
+<CardGroup cols={2}>
+  <Card title="Full API Reference" icon="file-lines">
+    Every endpoint, parameter, and response schema documented in a single markdown file optimized for LLM consumption.
+  </Card>
+  <Card title="Code Examples" icon="code">
+    Python examples for common patterns — backfilling snapshots, polling live prices, correlating prediction markets with spot data.
+  </Card>
+  <Card title="Auth & Rate Limits" icon="key">
+    Clear instructions on API key headers, plan tiers, rate limit handling, and coin access so the agent self-manages usage.
+  </Card>
+  <Card title="Pagination & Filtering" icon="filter">
+    Time-range filtering, offset-based pagination, and orderbook inclusion flags — all documented for autonomous data retrieval.
+  </Card>
+</CardGroup>
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="llms.txt" icon="robot" href="https://polybacktest.com/llms">
+    Complete machine-readable API guide for LLM consumption
+  </Card>
+  <Card title="OpenAPI Spec" icon="brackets-curly" href="https://docs.polybacktest.com/api-reference/openapi.json">
+    JSON schema for tool-use integrations (function calling)
+  </Card>
+  <Card title="API Documentation" icon="book" href="https://docs.polybacktest.com">
+    Full interactive API docs
+  </Card>
+  <Card title="API Keys" icon="key" href="https://polybacktest.com/dashboard">
+    Create and manage your API keys in the dashboard
+  </Card>
+</CardGroup>

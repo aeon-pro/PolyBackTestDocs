@@ -18,7 +18,8 @@
                     "rate-limits",
                     "data-retention",
                     "fetching-data",
-                    "available-data"
+                    "available-data",
+                    "ai-agents"
                 ]
             },
             
@@ -67,22 +68,6 @@
                                     "api-reference/endpoint/futures-latest",
                                     "api-reference/endpoint/futures-orderbooks",
                                     "api-reference/endpoint/futures-trades"
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "group": "Older Versions",
-                        "pages": [
-                            {
-                                "group": "v1",
-                                "expanded": false,
-                                "pages": [
-                                    "api-reference/endpoint/v1-list-markets",
-                                    "api-reference/endpoint/v1-get-market",
-                                    "api-reference/endpoint/v1-get-market-by-slug",
-                                    "api-reference/endpoint/v1-get-snapshots",
-                                    "api-reference/endpoint/v1-get-snapshot-at"
                                 ]
                             }
                         ]
