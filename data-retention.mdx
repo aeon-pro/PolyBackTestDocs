@@ -9,7 +9,7 @@ icon: 'database'
 PolyBackTest maintains high-frequency data across two primary data sources — **Polymarket prediction markets** and **Binance cryptocurrency feeds**. All data is retained for **31 days** with automatic purging.
 
 <Info>
-All endpoints require a `coin` query parameter. Supported coins: `btc`, `eth`, `sol`. As new assets are added, the same data retention policies will apply.
+v3 endpoints take the coin as a path segment (`/v3/{coin}/...`). Supported coins: `btc`, `eth`, `sol`. As new assets are added, the same data retention policies apply.
 </Info>
 
 <Warning>

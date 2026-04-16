@@ -46,21 +46,24 @@ PolyBackTest provides comprehensive access to prediction market data and cryptoc
 Fetch the latest BTC prediction markets:
 
 ```bash
-curl "https://api.polybacktest.com/v2/markets?coin=btc&market_type=5m&limit=10" \
+curl "https://api.polybacktest.com/v3/btc/markets?type=5m&limit=10" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 Get the latest BTC spot orderbook:
 
 ```bash
-curl "https://api.polybacktest.com/v2/spot/latest?coin=btc" \
+curl "https://api.polybacktest.com/v3/btc/spot/latest" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 <Info>
-All endpoints require a `coin` query parameter.
-Currently supported coins: `btc`, `eth`, `sol`.
+v3 puts the coin in the URL path (`/v3/{coin}/...`). Supported coins: `btc`, `eth`, `sol`. Each request targets one coin.
 </Info>
+
+<Note>
+If you're still on v2 (`/v2/markets?coin=btc&...`), it keeps working through the sunset window — see the [v2 → v3 migration guide](/api-reference/v3/overview).
+</Note>
 
 <Warning>
 **ETH data collection started on 2026-03-02** Full 31-day historical coverage for Ethereum is not yet available.

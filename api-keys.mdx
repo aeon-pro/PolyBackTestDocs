@@ -32,24 +32,37 @@ You must include the API key in the `Authorization` header (as a Bearer token) o
 
 ```bash
 # Using Authorization header (recommended)
-curl "https://api.polybacktest.com/v2/markets?coin=btc" \
+curl "https://api.polybacktest.com/v3/btc/markets" \
   -H "Authorization: Bearer pdm_your_api_key_here"
 
 # Or using X-API-Key header
-curl "https://api.polybacktest.com/v2/spot/latest?coin=btc" \
+curl "https://api.polybacktest.com/v3/btc/spot/latest" \
   -H "X-API-Key: pdm_your_api_key_here"
 ```
 
 <Info>
-All endpoints require a `coin` query parameter. Supported coins include `btc` and `eth`.
+v3 puts the coin in the URL path (`/v3/{coin}/...`). Supported coins: `btc`, `eth`, `sol`. Each request targets exactly one coin.
 </Info>
+
+### Base URLs
+
+| Domain | Who can use it |
+| :--- | :--- |
+| `api.polybacktest.com` | Everyone (free, pro, enterprise). |
+| `enterprise.polybacktest.com` | Enterprise plan keys only — non-enterprise keys are rejected with `ENTERPRISE_ONLY`. |
+
+Enterprise users can use either URL — routing is decided by the API key, not the hostname.
 
 ### Authentication Errors
 
-| Status Code | Description |
-| :--- | :--- |
-| `401 Unauthorized` | The API key is missing, invalid, or expired. |
-| `403 Forbidden` | The API key does not have permission to access the requested resource. |
+v3 error responses use a stable machine-readable `code` (see [v3 Error Codes](/api-reference/v3/error-codes)):
+
+| `error.code` | Status | When |
+| :--- | :--- | :--- |
+| `AUTH_MISSING` | `401` | No API key was provided. |
+| `AUTH_INVALID` | `401` | The key is unknown, revoked, or malformed. |
+| `AUTH_EXPIRED` | `401` | The key is past its expiration date. |
+| `ENTERPRISE_ONLY` | `403` | A non-enterprise key was used on the `enterprise.` domain. |
 
 ## Best Practices
 

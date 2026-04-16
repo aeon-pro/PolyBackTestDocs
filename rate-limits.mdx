@@ -6,57 +6,73 @@ icon: 'gauge-high'
 
 ## API Rate Limits
 
-To ensure fair usage and system stability, the PolyBackTest API enforces per-user rate limits that vary by plan. Limits are applied globally across all your API keys — using multiple keys does not increase your quota.
+To ensure fair usage and system stability, PolyBackTest enforces per-user rate limits that vary by plan. Limits are applied per user, not per API key — using multiple keys does not increase your quota.
 
 ### Rate Limits by Plan
 
 | Plan | Requests per Second | Requests per Minute |
 | :--- | :--- | :--- |
-| **Free** | 1 | 60 |
+| **Free** | 1 | — |
 | **Pro** | 10 | 300 |
+| **Enterprise** | Custom | Custom |
 
 <Info>
-  Free-plan users are limited to **1 request per second**. Pro users can burst up to **10 requests per second**, with a sustained limit of **300 requests per minute**.
+  Free-plan users are limited to **1 request per second**. Pro users can burst to **10 requests per second** with a sustained **300 requests per minute**. Enterprise plans ship with custom limits agreed per contract — see your plan details in the [Dashboard](https://polybacktest.com/dashboard?tab=billing).
 </Info>
 
 ### Rate Limit Headers
 
 Every API response includes rate limit headers so you can track your usage:
 
-- `X-RateLimit-Limit`: Your maximum allowed requests for the current window.
-- `X-RateLimit-Remaining`: The number of requests you have left in the current window.
+- `X-RateLimit-Limit` — your maximum allowed requests for the current window.
+- `X-RateLimit-Remaining` — requests remaining in the current window.
 
 When rate limited, a `Retry-After` header indicates how many seconds to wait before retrying.
 
 ### 429 Too Many Requests
 
-If you exceed your rate limit, the API will return a `429` error:
+v3 error responses include a stable `error.code` so you can branch on burst vs. sustained:
 
 ```json
 {
-  "error": "Burst limit exceeded. Max 1 requests per second."
+  "error": {
+    "code": "RATE_LIMIT_BURST",
+    "message": "Burst limit exceeded. Max 10 requests per second.",
+    "details": { "retry_after": 1, "limit": 10, "window": "second" }
+  },
+  "meta": { "request_id": "req_a1b2c3d4e5f6", "timestamp": "2026-04-16T12:00:00Z" }
 }
 ```
 
 ```json
 {
-  "error": "Rate limit exceeded. Max 300 requests per minute."
+  "error": {
+    "code": "RATE_LIMIT_SUSTAINED",
+    "message": "Rate limit exceeded. Max 300 requests per minute.",
+    "details": { "retry_after": 47, "limit": 300, "window": "minute" }
+  },
+  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
 }
 ```
 
 ## Coin Access by Plan
 
-ETH and SOL data is available exclusively to **Pro** plan users. Free-plan users can only query BTC data. Attempting to query `coin=eth` or `coin=sol` on a free plan will return a `402` error:
+ETH and SOL data is available to **Pro** and **Enterprise** users. Free-plan users can only query BTC. Attempting `/v3/eth/...` or `/v3/sol/...` on a free plan returns `402`:
 
 ```json
 {
-  "error": "ETH data is available exclusively for Pro plan users. Upgrade to Pro to access ETH markets, orderbooks, and trades."
+  "error": {
+    "code": "COIN_NOT_IN_PLAN",
+    "message": "ETH data requires a Pro plan or enterprise access",
+    "details": { "coin": "eth" }
+  },
+  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
 }
 ```
 
 ## Plan-Based Market Limits
 
-Access to market data depends on your plan. Free-plan users can access a limited window of the **most recent** BTC markets for each timeframe. Pro users have **unlimited** access to all coins.
+Access to market data depends on your plan. Free-plan users can access a limited window of the **most recent** BTC markets for each timeframe. Pro users have **unlimited** access.
 
 ### Free Plan Limits
 
@@ -74,89 +90,109 @@ Access to market data depends on your plan. Free-plan users can access a limited
 
 ### What Does This Mean?
 
-- **List Markets (`/v2/markets`)**: Free users will only see markets within the allowed window. If you request more than the limit (e.g., `limit=60` for 5m markets), the API will return only the latest 50 and include a `warning` field in the response.
-- **Get Market by ID/Slug**: Accessing a market outside your plan's window returns a `402` error.
-- **Snapshots**: Free users can access all snapshots for any market **within** their allowed window. Accessing snapshots for a market outside the window returns a `402` error.
+- **List Markets (`GET /v3/{coin}/markets`)** — free users only see markets within their allowed window. Results past the window are filtered out.
+- **Get Market by ID/Slug** — accessing a market outside your window returns a `402` with `PLAN_UPGRADE_REQUIRED`.
+- **Snapshots** — free users can access all snapshots for any market **within** their window. Accessing snapshots for a market outside the window returns a `402`.
 
 ### Check Your Limits
 
-Use the `/v2/limits` endpoint to view your current plan and limits:
+Call **`GET /v3/me`** to see the plan, limits, and (for enterprise users) routing the gateway is using for your traffic:
 
 ```bash
-curl -X GET "https://api.polybacktest.com/v2/limits" \
+curl -X GET "https://api.polybacktest.com/v3/me" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```json Example Response (Free Plan)
 {
-  "plan": "free",
-  "limits": {
-    "5m_markets": 50,
-    "15m_markets": 50,
-    "1h_markets": 24,
-    "4h_markets": 24,
-    "24h_markets": 5,
-    "snapshots": null
+  "data": {
+    "user_id": "user_...",
+    "email": "you@example.com",
+    "plan": "free",
+    "limits": {
+      "btc_5m_markets": 50,
+      "btc_15m_markets": 50,
+      "btc_1h_markets": 24,
+      "btc_4h_markets": 24,
+      "btc_24h_markets": 5,
+      "btc_snapshots": null,
+      "eth_5m_markets": 0,
+      "sol_5m_markets": 0
+    },
+    "enterprise": null
   },
-  "rate_limit": {
-    "max_per_second": 1,
-    "remaining_per_second": 0,
-    "max_per_minute": null,
-    "remaining_per_minute": null
-  }
+  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
 }
 ```
 
 ```json Example Response (Pro Plan)
 {
-  "plan": "pro",
-  "limits": {
-    "5m_markets": null,
-    "15m_markets": null,
-    "1h_markets": null,
-    "4h_markets": null,
-    "24h_markets": null,
-    "snapshots": null
+  "data": {
+    "user_id": "user_...",
+    "email": "you@example.com",
+    "plan": "pro",
+    "limits": {
+      "btc_5m_markets": null,
+      "btc_15m_markets": null,
+      "eth_5m_markets": null,
+      "sol_5m_markets": null,
+      "btc_snapshots": null
+    },
+    "enterprise": null
   },
-  "rate_limit": {
-    "max_per_second": 10,
-    "remaining_per_second": 9,
-    "max_per_minute": 300,
-    "remaining_per_minute": 299
-  }
+  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
+}
+```
+
+```json Example Response (Enterprise Plan)
+{
+  "data": {
+    "plan": "pro",
+    "limits": { "btc_5m_markets": null, "...": "..." },
+    "enterprise": {
+      "plan_id": "ent_...",
+      "slug": "auro-capital",
+      "rate_limits": { "maxPerSecond": 100, "maxPerMinute": 3000 },
+      "routing": {
+        "btc": {
+          "polymarket": { "type": "dedicated", "url": "https://btc.auro.polybacktest.com" },
+          "binance":    { "type": "dedicated", "url": "https://btc.binance.auro.polybacktest.com" }
+        },
+        "eth": {
+          "polymarket": { "type": "dedicated", "url": "https://eth.auro.polybacktest.com" },
+          "binance":    { "type": "shared" }
+        }
+      },
+      "limits_override": { "btc_5m_markets": null }
+    }
+  },
+  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
 }
 ```
 
 <Note>
-  A `null` value for `snapshots` or market limits means there is no cap — Pro users have unlimited access. A `null` value for `max_per_minute` (Free plan) means only the per-second limit applies.
+A `null` value for a limit key means no cap. A missing key means the base plan's value applies. Enterprise users can inspect `routing` to see which coin + provider pairs go to dedicated infrastructure versus shared.
 </Note>
 
-### Handling Limit Responses
+### Handling Plan Errors
 
-When your request is clamped by plan limits, the API response will include a `warning` field:
-
-```json
-{
-  "markets": [...],
-  "total": 8500,
-  "limit": 60,
-  "offset": 0,
-  "warning": "Free plan limit reached. Showing latest 50 of 50 allowed markets. Upgrade to Pro to view all markets."
-}
-```
-
-When you try to access a market outside your plan window, you'll receive a `402` error:
+When your request needs a higher plan, v3 returns `402`:
 
 ```json
 {
-  "detail": {
-    "error": "upgrade_required",
-    "message": "This market is outside your plan's access window. Upgrade to Pro for unlimited access to all market history and snapshots.",
-    "current_plan": "free"
-  }
+  "error": {
+    "code": "PLAN_UPGRADE_REQUIRED",
+    "message": "Free plan access exhausted for this filter. Upgrade for unlimited access.",
+    "details": {
+      "current_plan": "free",
+      "required_plan": "pro",
+      "market_type": "5m"
+    }
+  },
+  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
 }
 ```
 
 <Tip>
-  To handle these gracefully in your code, check for the `warning` field in successful responses and handle `402` status codes for individual market/snapshot requests.
+  Branch on `error.code` (stable), not `error.message` (may change). Full list: [v3 Error Codes](/api-reference/v3/error-codes).
 </Tip>
