@@ -14,14 +14,14 @@ API v3 is a clean rewrite of the v2 surface area. Same data, same auth, new ergo
 | **Total count** | Always in response | Opt-in via `?include_count=true` |
 | **Response shape** | Endpoint-specific (`{ markets: [...] }`, `{ snapshots: [...] }`) | Uniform `{ data, pagination?, meta }` envelope |
 | **Errors** | `{ "error": "string" }` | `{ "error": { "code", "message", "details" }, "meta" }` |
-| **Batch** | — | `POST /v3/batch` (up to 10 GETs) |
+| **Batch** | - | `POST /v3/batch` (up to 10 GETs) |
 
 ## Base URLs
 
-- **`https://api.polybacktest.com`** — everyone (free, pro, enterprise)
-- **`https://enterprise.polybacktest.com`** — exclusive endpoint for enterprise plan API keys (non-enterprise keys are rejected with `ENTERPRISE_ONLY`)
+- **`https://api.polybacktest.com`** - everyone (free, pro, enterprise)
+- **`https://enterprise.polybacktest.com`** - exclusive endpoint for enterprise plan API keys (non-enterprise keys are rejected with `ENTERPRISE_ONLY`)
 
-Enterprise users can use either URL — routing is decided by the API key, not the hostname. The enterprise domain just gives organizations a distinct, premium base URL for their integrations.
+Enterprise users can use either URL - routing is decided by the API key, not the hostname. The enterprise domain just gives organizations a distinct, premium base URL for their integrations.
 
 ## Response envelope
 
@@ -80,7 +80,7 @@ Cursors are opaque base64url-encoded sort-key snapshots. To paginate forward, ta
 curl 'https://api.polybacktest.com/v3/btc/markets?type=5m&limit=50' \
   -H "X-API-Key: $POLY_KEY"
 
-# Page 2 — pass the cursor from page 1's pagination.next_cursor
+# Page 2 - pass the cursor from page 1's pagination.next_cursor
 curl 'https://api.polybacktest.com/v3/btc/markets?type=5m&limit=50&cursor=eyJzdCI...' \
   -H "X-API-Key: $POLY_KEY"
 ```
@@ -93,7 +93,7 @@ Compared to v2's `OFFSET N`, cursor pagination stays O(1) at any depth and uses 
 
 ## Authentication
 
-Same as v2 — pass your key as `X-API-Key` or `Authorization: Bearer …`.
+Same as v2 - pass your key as `X-API-Key` or `Authorization: Bearer …`.
 
 ```bash
 curl 'https://api.polybacktest.com/v3/btc/markets' -H "X-API-Key: $POLY_KEY"
@@ -104,7 +104,7 @@ curl 'https://api.polybacktest.com/v3/btc/markets' -H "X-API-Key: $POLY_KEY"
 The mechanical changes are usually:
 
 1. Move the `?coin=` query param into the path: `/v2/markets?coin=btc` → `/v3/btc/markets`.
-2. Replace `?offset=` with cursor pagination (or keep using `?offset=` while you migrate — it still works).
+2. Replace `?offset=` with cursor pagination (or keep using `?offset=` while you migrate - it still works).
 3. Read your data from `response.data` instead of `response.markets` / `response.snapshots` / `response.trades`.
 4. If you depended on `total`, opt in via `?include_count=true` only where you actually need it.
 

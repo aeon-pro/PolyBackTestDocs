@@ -34,6 +34,6 @@ Response:
 - **GET only**. Other methods are not allowed.
 - Paths must be **relative v3 paths** starting with `/v3/`. No nested `/v3/batch`.
 - **Each sub-request counts as one rate limit hit.** A batch of 10 reserves 10 slots up front.
-- Outer HTTP status is **always 200** — inspect each `data[].status` for per-sub-request outcomes.
+- Outer HTTP status is **always 200** - inspect each `data[].status` for per-sub-request outcomes.
 
 <Warning>Sub-request ids must be unique within a batch. Duplicates return `BATCH_INVALID_PATH`.</Warning>

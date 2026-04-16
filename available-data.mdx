@@ -15,20 +15,12 @@ Currently, the PolyBackTest API tracks Polymarket prediction markets for the fol
 | **Solana**  | `sol` | `5m`, `15m`, `1h` | Pro only |
 
 <Tip>
-v3 URLs: `GET /v3/{coin}/markets?type=5m`. For example — `GET /v3/btc/markets?type=5m&limit=10`.
+v3 URLs: `GET /v3/{coin}/markets?type=5m`. For example - `GET /v3/btc/markets?type=5m&limit=10`.
 </Tip>
 
 <Info>
 As new assets (like XRP) are added to the platform, their supported market types will be listed here.
 </Info>
-
-<Warning>
-**ETH data collection started on 2026-03-02** Full 31-day historical coverage for Ethereum is not yet available.
-</Warning>
-
-<Warning>
-**SOL data collection started on 2026-03-16.** Full 31-day historical coverage for Solana is not yet available.
-</Warning>
 
 ## Binance Data
 
@@ -44,6 +36,3 @@ Real-time orderbook snapshots and aggregated trades from Binance are also tracke
 v3 URLs: `GET /v3/{coin}/spot/latest`, `GET /v3/{coin}/spot/snapshots`, `GET /v3/{coin}/spot/trades`, `GET /v3/{coin}/futures/...`.
 </Tip>
 
-<Warning>
-**BTC, ETH, SOL Binance data collection started on 2026-03-16.** Full 31-day historical coverage for Binance orderbook and trade data is not yet available.
-</Warning>

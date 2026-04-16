@@ -6,19 +6,11 @@ icon: 'database'
 
 ## Overview
 
-PolyBackTest maintains high-frequency data across two primary data sources — **Polymarket prediction markets** and **Binance cryptocurrency feeds**. All data is retained for **31 days** with automatic purging.
+PolyBackTest maintains high-frequency data across two primary data sources - **Polymarket prediction markets** and **Binance cryptocurrency feeds**. All data is retained for **31 days** with automatic purging.
 
 <Info>
 v3 endpoints take the coin as a path segment (`/v3/{coin}/...`). Supported coins: `btc`, `eth`, `sol`. As new assets are added, the same data retention policies apply.
 </Info>
-
-<Warning>
-**ETH data collection started on 2026-03-02** Full 31-day historical coverage for Ethereum is not yet available.
-</Warning>
-
-<Warning>
-**SOL data collection started on 2026-03-16.** Full 31-day historical coverage for Solana is not yet available.
-</Warning>
 
 ## Polymarket Up/Down Markets
 
@@ -43,8 +35,8 @@ Historical prediction market data for crypto up/down markets (BTC, ETH, SOL).
 - For **5-minute** and **15-minute** markets, PolyBackTest aligns with **Polymarket**, which uses **Chainlink** as its oracle. Our data is fully consistent with settlement prices.
 
 **Data Consistency**
-- **Orderbooks**: Captured directly from the market — fully consistent.
-- **Resolution Data**: Uses official resolution data — settlement outcomes are accurate.
+- **Orderbooks**: Captured directly from the market - fully consistent.
+- **Resolution Data**: Uses official resolution data - settlement outcomes are accurate.
 - **Price Accuracy**: Chainlink integration for short-term markets ensures high accuracy to the settlement source.
 
 ---
@@ -61,10 +53,6 @@ Real-time orderbook snapshots and aggregated trade data from Binance.
 | **Markets** | Spot & Futures |
 | **Current Assets** | BTC, ETH, SOL |
 | **Data Captured** | Full orderbook depth, OHLCV, volume, trade count |
-
-<Warning>
-**BTC, ETH, SOL Binance data collection started on 2026-03-16.** Full 31-day historical coverage for Binance orderbook and trade data is not yet available.
-</Warning>
 
 ### Orderbook Snapshots
 

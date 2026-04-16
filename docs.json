@@ -69,7 +69,6 @@
                                 "expanded": true,
                                 "pages": [
                                     "api-reference/v3/health",
-                                    "api-reference/v3/me",
                                     "api-reference/v3/batch"
                                 ]
                             }

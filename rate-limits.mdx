@@ -6,26 +6,26 @@ icon: 'gauge-high'
 
 ## API Rate Limits
 
-To ensure fair usage and system stability, PolyBackTest enforces per-user rate limits that vary by plan. Limits are applied per user, not per API key — using multiple keys does not increase your quota.
+To ensure fair usage and system stability, PolyBackTest enforces per-user rate limits that vary by plan. Limits are applied per user, not per API key - using multiple keys does not increase your quota.
 
 ### Rate Limits by Plan
 
 | Plan | Requests per Second | Requests per Minute |
 | :--- | :--- | :--- |
-| **Free** | 1 | — |
+| **Free** | 1 | - |
 | **Pro** | 10 | 300 |
 | **Enterprise** | Custom | Custom |
 
 <Info>
-  Free-plan users are limited to **1 request per second**. Pro users can burst to **10 requests per second** with a sustained **300 requests per minute**. Enterprise plans ship with custom limits agreed per contract — see your plan details in the [Dashboard](https://polybacktest.com/dashboard?tab=billing).
+  Free-plan users are limited to **1 request per second**. Pro users can burst to **10 requests per second** with a sustained **300 requests per minute**. Enterprise plans ship with custom limits agreed per contract - see your plan details in the [Dashboard](https://polybacktest.com/dashboard?tab=billing).
 </Info>
 
 ### Rate Limit Headers
 
 Every API response includes rate limit headers so you can track your usage:
 
-- `X-RateLimit-Limit` — your maximum allowed requests for the current window.
-- `X-RateLimit-Remaining` — requests remaining in the current window.
+- `X-RateLimit-Limit` - your maximum allowed requests for the current window.
+- `X-RateLimit-Remaining` - requests remaining in the current window.
 
 When rate limited, a `Retry-After` header indicates how many seconds to wait before retrying.
 
@@ -90,89 +90,13 @@ Access to market data depends on your plan. Free-plan users can access a limited
 
 ### What Does This Mean?
 
-- **List Markets (`GET /v3/{coin}/markets`)** — free users only see markets within their allowed window. Results past the window are filtered out.
-- **Get Market by ID/Slug** — accessing a market outside your window returns a `402` with `PLAN_UPGRADE_REQUIRED`.
-- **Snapshots** — free users can access all snapshots for any market **within** their window. Accessing snapshots for a market outside the window returns a `402`.
+- **List Markets (`GET /v3/{coin}/markets`)** - free users only see markets within their allowed window. Results past the window are filtered out.
+- **Get Market by ID/Slug** - accessing a market outside your window returns a `402` with `PLAN_UPGRADE_REQUIRED`.
+- **Snapshots** - free users can access all snapshots for any market **within** their window. Accessing snapshots for a market outside the window returns a `402`.
 
 ### Check Your Limits
 
-Call **`GET /v3/me`** to see the plan, limits, and (for enterprise users) routing the gateway is using for your traffic:
-
-```bash
-curl -X GET "https://api.polybacktest.com/v3/me" \
-  -H "Authorization: Bearer YOUR_API_KEY"
-```
-
-```json Example Response (Free Plan)
-{
-  "data": {
-    "user_id": "user_...",
-    "email": "you@example.com",
-    "plan": "free",
-    "limits": {
-      "btc_5m_markets": 50,
-      "btc_15m_markets": 50,
-      "btc_1h_markets": 24,
-      "btc_4h_markets": 24,
-      "btc_24h_markets": 5,
-      "btc_snapshots": null,
-      "eth_5m_markets": 0,
-      "sol_5m_markets": 0
-    },
-    "enterprise": null
-  },
-  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
-}
-```
-
-```json Example Response (Pro Plan)
-{
-  "data": {
-    "user_id": "user_...",
-    "email": "you@example.com",
-    "plan": "pro",
-    "limits": {
-      "btc_5m_markets": null,
-      "btc_15m_markets": null,
-      "eth_5m_markets": null,
-      "sol_5m_markets": null,
-      "btc_snapshots": null
-    },
-    "enterprise": null
-  },
-  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
-}
-```
-
-```json Example Response (Enterprise Plan)
-{
-  "data": {
-    "plan": "pro",
-    "limits": { "btc_5m_markets": null, "...": "..." },
-    "enterprise": {
-      "plan_id": "ent_...",
-      "slug": "auro-capital",
-      "rate_limits": { "maxPerSecond": 100, "maxPerMinute": 3000 },
-      "routing": {
-        "btc": {
-          "polymarket": { "type": "dedicated", "url": "https://btc.auro.polybacktest.com" },
-          "binance":    { "type": "dedicated", "url": "https://btc.binance.auro.polybacktest.com" }
-        },
-        "eth": {
-          "polymarket": { "type": "dedicated", "url": "https://eth.auro.polybacktest.com" },
-          "binance":    { "type": "shared" }
-        }
-      },
-      "limits_override": { "btc_5m_markets": null }
-    }
-  },
-  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
-}
-```
-
-<Note>
-A `null` value for a limit key means no cap. A missing key means the base plan's value applies. Enterprise users can inspect `routing` to see which coin + provider pairs go to dedicated infrastructure versus shared.
-</Note>
+Your plan, included markets, and (for enterprise) infrastructure routing are visible in the [Dashboard](https://polybacktest.com/dashboard?tab=billing). The `X-RateLimit-Limit` and `X-RateLimit-Remaining` response headers on every authenticated request also reflect the limits the gateway is currently applying to your key.
 
 ### Handling Plan Errors
 

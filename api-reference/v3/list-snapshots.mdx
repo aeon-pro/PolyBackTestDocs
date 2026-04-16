@@ -7,9 +7,9 @@ openapi: 'GET /v3/{coin}/markets/{market_id}/snapshots'
 
 Each snapshot captures:
 
-- **Coin price** — the underlying crypto price at capture time (field name depends on coin: `btc_price`, `eth_price`, `sol_price`).
-- **UP / DOWN prices** — current probability of each outcome.
-- **Order book** (optional) — pass `?include_orderbook=true` for full bid/ask depth.
+- **Coin price** - the underlying crypto price at capture time (field name depends on coin: `btc_price`, `eth_price`, `sol_price`).
+- **UP / DOWN prices** - current probability of each outcome.
+- **Order book** (optional) - pass `?include_orderbook=true` for full bid/ask depth.
 
 ## Pagination
 

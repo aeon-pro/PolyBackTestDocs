@@ -5,12 +5,12 @@ icon: 'filter'
 ---
 
 <Note>
-This guide uses the current **v3** API. v2 is still live through its sunset window but uses `limit`/`offset` pagination and a different response envelope — see [API v2 (deprecated)](/api-reference/endpoint/list-markets) if you need the legacy docs.
+This guide uses the current **v3** API. v2 is still live through its sunset window but uses `limit`/`offset` pagination and a different response envelope - see [API v2 (deprecated)](/api-reference/endpoint/list-markets) if you need the legacy docs.
 </Note>
 
 ## Time Filtering
 
-Most endpoints return time-series data — market snapshots, orderbooks, trades. Use `start_time` and `end_time` to focus a query on a specific window.
+Most endpoints return time-series data - market snapshots, orderbooks, trades. Use `start_time` and `end_time` to focus a query on a specific window.
 
 The API accepts timestamps in two formats:
 1. **Millisecond Epoch**: e.g., `1709006400000` (recommended for programmatic access)
@@ -50,8 +50,8 @@ v3 uses **cursor pagination** (keyset / seek) instead of v2's `limit`/`offset`. 
 | Parameter | Default | Maximum | Description |
 | :--- | :--- | :--- | :--- |
 | `limit` | Varies | Varies | Number of results per page. |
-| `cursor` | — | — | Opaque cursor from the previous response's `pagination.next_cursor`. |
-| `include_count` | `false` | — | Set `true` to populate `pagination.total_count` (triggers a `COUNT(*)` — avoid unless needed). |
+| `cursor` | - | - | Opaque cursor from the previous response's `pagination.next_cursor`. |
+| `include_count` | `false` | - | Set `true` to populate `pagination.total_count` (triggers a `COUNT(*)` - avoid unless needed). |
 
 ### Maximum Limits
 
@@ -111,7 +111,7 @@ print(f"Total snapshots fetched: {len(all_snapshots)}")
 ```
 
 <Warning>
-The legacy v2 `?offset=N` parameter still works on v3 endpoints for back-compat, but is deprecated. Mixing `offset` and `cursor` is not supported — if both are provided, `cursor` wins.
+The legacy v2 `?offset=N` parameter still works on v3 endpoints for back-compat, but is deprecated. Mixing `offset` and `cursor` is not supported - if both are provided, `cursor` wins.
 </Warning>
 
 ---
@@ -132,11 +132,11 @@ For the Polymarket snapshot endpoint, orderbooks are excluded by default (`inclu
 
 ### 3. Don't opt into `total_count` unless you need it
 
-`COUNT(*)` on large tables is expensive. v3 omits `total_count` by default. Only pass `?include_count=true` when you actually display a "page X of Y" — for infinite-scroll, cursor-based UIs, don't bother.
+`COUNT(*)` on large tables is expensive. v3 omits `total_count` by default. Only pass `?include_count=true` when you actually display a "page X of Y" - for infinite-scroll, cursor-based UIs, don't bother.
 
 ### 4. Millisecond Epoch over ISO
 
-ISO8601 strings are human-readable and good for manual testing. For production systems, use millisecond epoch integers — no time-zone ambiguity and a faster parse on both ends.
+ISO8601 strings are human-readable and good for manual testing. For production systems, use millisecond epoch integers - no time-zone ambiguity and a faster parse on both ends.
 
 ### 5. Batch where it helps
 
