@@ -1,0 +1,12 @@
+---
+title: 'Snapshot at Timestamp'
+openapi: 'GET /v3/{coin}/markets/{market_id}/snapshots/at/{timestamp}'
+---
+
+## What you get
+
+The closest snapshot to `{timestamp}` — millisecond epoch or ISO-8601.
+
+If no snapshot is within 2 seconds of the requested time, the response is 404 with `error.code = SNAPSHOT_NOT_FOUND`.
+
+<Tip>Use this to align backtest decisions to a specific wall-clock moment without scanning a whole snapshot window.</Tip>

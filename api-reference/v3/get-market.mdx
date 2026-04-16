@@ -1,0 +1,17 @@
+---
+title: 'Get Market'
+openapi: 'GET /v3/{coin}/markets/{market_id}'
+---
+
+## What you get
+
+A single market resolved by ID, under the v3 envelope:
+
+```json
+{
+  "data": { "market_id": "1051520", "market_type": "5m", "...": "..." },
+  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
+}
+```
+
+<Info>404s surface as `MARKET_NOT_FOUND` in the error envelope.</Info>

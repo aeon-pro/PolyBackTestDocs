@@ -30,6 +30,1785 @@
         }
     ],
     "paths": {
+        "/v3/health": {
+            "get": {
+                "tags": [
+                    "v3 - Utility"
+                ],
+                "summary": "Health check",
+                "description": "Public health check; no API key required.",
+                "operationId": "v3_health",
+                "security": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3HealthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/me": {
+            "get": {
+                "tags": [
+                    "v3 - Utility"
+                ],
+                "summary": "Authenticated caller info",
+                "description": "Returns plan, limits, and (if applicable) enterprise routing for the API key in this request.",
+                "operationId": "v3_me",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3MeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/batch": {
+            "post": {
+                "tags": [
+                    "v3 - Utility"
+                ],
+                "summary": "Batch up to 10 GETs",
+                "description": "Execute up to 10 v3 GET sub-requests in parallel. Each sub-request consumes one rate-limit slot. Outer status is always 200; inspect each `data[].status` for individual outcomes.",
+                "operationId": "v3_batch",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/V3BatchRequest"
+                            },
+                            "example": {
+                                "requests": [
+                                    {
+                                        "id": "r1",
+                                        "path": "/v3/btc/markets?type=5m&limit=10"
+                                    },
+                                    {
+                                        "id": "r2",
+                                        "path": "/v3/btc/spot/latest"
+                                    },
+                                    {
+                                        "id": "r3",
+                                        "path": "/v3/eth/futures/latest"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3BatchResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/markets": {
+            "get": {
+                "tags": [
+                    "v3 - Markets"
+                ],
+                "summary": "List markets",
+                "description": "Cursor-paginated list of markets for a coin. Sorted by `start_time` desc.",
+                "operationId": "v3_list_markets",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "5m",
+                                "15m",
+                                "1h",
+                                "4h",
+                                "24h"
+                            ]
+                        },
+                        "description": "Filter by market type."
+                    },
+                    {
+                        "name": "resolved",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "true = only resolved markets, false = only open markets."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Lower bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Upper bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 50
+                        },
+                        "description": "Items per page (max 100)."
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor from a previous response's `pagination.next_cursor`. Mutually exclusive with `offset` (cursor wins)."
+                    },
+                    {
+                        "name": "include_count",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "Include `pagination.total_count`. Triggers a COUNT(*); leave off unless you need it."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3MarketsListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/markets/{market_id}": {
+            "get": {
+                "tags": [
+                    "v3 - Markets"
+                ],
+                "summary": "Get market by ID",
+                "operationId": "v3_get_market_by_id",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    },
+                    {
+                        "name": "market_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "1051520"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3MarketResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/markets/by-slug/{slug}": {
+            "get": {
+                "tags": [
+                    "v3 - Markets"
+                ],
+                "summary": "Get market by slug",
+                "operationId": "v3_get_market_by_slug",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    },
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "btc-up-or-down-april-15-9pm-et"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3MarketResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/markets/{market_id}/snapshots": {
+            "get": {
+                "tags": [
+                    "v3 - Markets"
+                ],
+                "summary": "List market snapshots",
+                "description": "Cursor-paginated snapshots for a market. Pass `include_orderbook=true` for full bid/ask depth.",
+                "operationId": "v3_list_snapshots",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    },
+                    {
+                        "name": "market_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Lower bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Upper bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "include_orderbook",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "Include full bid/ask depth \u2014 heavier payloads."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100
+                        },
+                        "description": "Items per page (max 1000)."
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor from a previous response's `pagination.next_cursor`. Mutually exclusive with `offset` (cursor wins)."
+                    },
+                    {
+                        "name": "include_count",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "Include `pagination.total_count`. Triggers a COUNT(*); leave off unless you need it."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3SnapshotsListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/markets/{market_id}/snapshots/at/{timestamp}": {
+            "get": {
+                "tags": [
+                    "v3 - Markets"
+                ],
+                "summary": "Snapshot at timestamp",
+                "description": "Returns the closest snapshot to a given timestamp (within 2 seconds).",
+                "operationId": "v3_get_snapshot_at",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    },
+                    {
+                        "name": "market_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "timestamp",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Target time \u2014 millisecond epoch or ISO-8601."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3SnapshotAtResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/spot/latest": {
+            "get": {
+                "tags": [
+                    "v3 - Binance Spot"
+                ],
+                "summary": "Latest spot snapshot",
+                "operationId": "v3_spot_latest",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3BinanceSnapshotResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/spot/snapshots": {
+            "get": {
+                "tags": [
+                    "v3 - Binance Spot"
+                ],
+                "summary": "List spot snapshots",
+                "operationId": "v3_spot_snapshots",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Lower bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Upper bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100
+                        },
+                        "description": "Items per page (max 1000)."
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor from a previous response's `pagination.next_cursor`. Mutually exclusive with `offset` (cursor wins)."
+                    },
+                    {
+                        "name": "include_count",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "Include `pagination.total_count`. Triggers a COUNT(*); leave off unless you need it."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3BinanceSnapshotsListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/spot/trades/latest": {
+            "get": {
+                "tags": [
+                    "v3 - Binance Spot"
+                ],
+                "summary": "Latest spot trade aggregate",
+                "operationId": "v3_spot_trades_latest",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3BinanceTradeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/spot/trades": {
+            "get": {
+                "tags": [
+                    "v3 - Binance Spot"
+                ],
+                "summary": "List spot trade aggregates",
+                "operationId": "v3_spot_trades",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Lower bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Upper bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100
+                        },
+                        "description": "Items per page (max 1000)."
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor from a previous response's `pagination.next_cursor`. Mutually exclusive with `offset` (cursor wins)."
+                    },
+                    {
+                        "name": "include_count",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "Include `pagination.total_count`. Triggers a COUNT(*); leave off unless you need it."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3BinanceTradesListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/futures/latest": {
+            "get": {
+                "tags": [
+                    "v3 - Binance Futures"
+                ],
+                "summary": "Latest futures snapshot",
+                "operationId": "v3_futures_latest",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3BinanceSnapshotResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/futures/snapshots": {
+            "get": {
+                "tags": [
+                    "v3 - Binance Futures"
+                ],
+                "summary": "List futures snapshots",
+                "operationId": "v3_futures_snapshots",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Lower bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Upper bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100
+                        },
+                        "description": "Items per page (max 1000)."
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor from a previous response's `pagination.next_cursor`. Mutually exclusive with `offset` (cursor wins)."
+                    },
+                    {
+                        "name": "include_count",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "Include `pagination.total_count`. Triggers a COUNT(*); leave off unless you need it."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3BinanceSnapshotsListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/futures/trades/latest": {
+            "get": {
+                "tags": [
+                    "v3 - Binance Futures"
+                ],
+                "summary": "Latest futures trade aggregate",
+                "operationId": "v3_futures_trades_latest",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3BinanceTradeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/{coin}/futures/trades": {
+            "get": {
+                "tags": [
+                    "v3 - Binance Futures"
+                ],
+                "summary": "List futures trade aggregates",
+                "operationId": "v3_futures_trades",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        },
+                        "description": "Cryptocurrency for this request. Available: btc, eth, sol."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Lower bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Upper bound \u2014 millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100
+                        },
+                        "description": "Items per page (max 1000)."
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor from a previous response's `pagination.next_cursor`. Mutually exclusive with `offset` (cursor wins)."
+                    },
+                    {
+                        "name": "include_count",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "Include `pagination.total_count`. Triggers a COUNT(*); leave off unless you need it."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3BinanceTradesListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid coin, cursor, parameter, timestamp, \u2026)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Endpoint or coin not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "tags": [
@@ -2201,10 +3980,764 @@
                     "offset"
                 ],
                 "title": "PaginatedTrades"
+            },
+            "V3Meta": {
+                "type": "object",
+                "title": "V3Meta",
+                "description": "Per-response metadata included on every v3 response.",
+                "properties": {
+                    "request_id": {
+                        "type": "string",
+                        "example": "req_a1b2c3d4e5f6"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "request_id",
+                    "timestamp"
+                ]
+            },
+            "V3Pagination": {
+                "type": "object",
+                "title": "V3Pagination",
+                "description": "Cursor pagination metadata. `total_count` is omitted unless `?include_count=true` is passed.",
+                "properties": {
+                    "next_cursor": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Opaque cursor; pass back as `?cursor=` to fetch the next page"
+                    },
+                    "has_more": {
+                        "type": "boolean"
+                    },
+                    "limit": {
+                        "type": "integer"
+                    },
+                    "count": {
+                        "type": "integer",
+                        "description": "Number of items in this page"
+                    },
+                    "total_count": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Only set when ?include_count=true (expensive)"
+                    }
+                },
+                "required": [
+                    "has_more",
+                    "limit",
+                    "count"
+                ]
+            },
+            "V3ErrorBlock": {
+                "type": "object",
+                "title": "V3ErrorBlock",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Machine-readable code (e.g. RATE_LIMIT_BURST, COIN_NOT_IN_PLAN)"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "details": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "additionalProperties": true
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "code",
+                    "message"
+                ]
+            },
+            "V3ErrorResponse": {
+                "type": "object",
+                "title": "V3ErrorResponse",
+                "properties": {
+                    "error": {
+                        "$ref": "#/components/schemas/V3ErrorBlock"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "error",
+                    "meta"
+                ]
+            },
+            "V3PolymarketMarket": {
+                "type": "object",
+                "title": "V3PolymarketMarket",
+                "description": "A Polymarket up/down prediction market. Coin price field is named per coin (`btc_price_start`, `eth_price_start`, etc.).",
+                "properties": {
+                    "market_id": {
+                        "type": "string"
+                    },
+                    "event_id": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "market_type": {
+                        "type": "string",
+                        "enum": [
+                            "5m",
+                            "15m",
+                            "1h",
+                            "4h",
+                            "24h"
+                        ]
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "{coin}_price_start": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Coin price at market start, named per coin queried"
+                    },
+                    "{coin}_price_end": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Coin price at market end, named per coin queried"
+                    },
+                    "condition_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "clob_token_up": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "clob_token_down": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "winner": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "up",
+                                    "down"
+                                ]
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "final_volume": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "final_liquidity": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "resolved_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "market_id",
+                    "event_id",
+                    "slug",
+                    "market_type",
+                    "start_time",
+                    "end_time"
+                ]
+            },
+            "V3PolymarketSnapshot": {
+                "type": "object",
+                "title": "V3PolymarketSnapshot",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "market_id": {
+                        "type": "string"
+                    },
+                    "{coin}_price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Coin price at snapshot time, named per coin queried"
+                    },
+                    "price_up": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "price_down": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "orderbook_up": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "additionalProperties": true
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Only included when ?include_orderbook=true"
+                    },
+                    "orderbook_down": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "additionalProperties": true
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Only included when ?include_orderbook=true"
+                    }
+                },
+                "required": [
+                    "id",
+                    "time",
+                    "market_id"
+                ]
+            },
+            "V3BinanceSnapshot": {
+                "type": "object",
+                "title": "V3BinanceSnapshot",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "price": {
+                        "type": "number"
+                    },
+                    "bids": {
+                        "description": "Order book bids",
+                        "type": "array",
+                        "items": {}
+                    },
+                    "asks": {
+                        "description": "Order book asks",
+                        "type": "array",
+                        "items": {}
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "price",
+                    "timestamp"
+                ]
+            },
+            "V3BinanceTrade": {
+                "type": "object",
+                "title": "V3BinanceTrade",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "price_open": {
+                        "type": "number"
+                    },
+                    "price_high": {
+                        "type": "number"
+                    },
+                    "price_low": {
+                        "type": "number"
+                    },
+                    "price_close": {
+                        "type": "number"
+                    },
+                    "total_volume": {
+                        "type": "number"
+                    },
+                    "aggressive_buy_volume": {
+                        "type": "number"
+                    },
+                    "aggressive_sell_volume": {
+                        "type": "number"
+                    },
+                    "num_trades": {
+                        "type": "integer"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "price_open",
+                    "price_high",
+                    "price_low",
+                    "price_close",
+                    "total_volume",
+                    "num_trades",
+                    "timestamp"
+                ]
+            },
+            "V3MarketsListResponse": {
+                "type": "object",
+                "title": "V3MarketsListResponse",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/V3PolymarketMarket"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/V3Pagination"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination",
+                    "meta"
+                ]
+            },
+            "V3MarketResponse": {
+                "type": "object",
+                "title": "V3MarketResponse",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/V3PolymarketMarket"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "meta"
+                ]
+            },
+            "V3SnapshotsListResponse": {
+                "type": "object",
+                "title": "V3SnapshotsListResponse",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/V3PolymarketSnapshot"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/V3Pagination"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination",
+                    "meta"
+                ]
+            },
+            "V3SnapshotAtResponse": {
+                "type": "object",
+                "title": "V3SnapshotAtResponse",
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "market": {
+                                "$ref": "#/components/schemas/V3PolymarketMarket"
+                            },
+                            "snapshot": {
+                                "$ref": "#/components/schemas/V3PolymarketSnapshot"
+                            }
+                        },
+                        "required": [
+                            "market",
+                            "snapshot"
+                        ]
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "meta"
+                ]
+            },
+            "V3BinanceSnapshotResponse": {
+                "type": "object",
+                "title": "V3BinanceSnapshotResponse",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/V3BinanceSnapshot"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "meta"
+                ]
+            },
+            "V3BinanceSnapshotsListResponse": {
+                "type": "object",
+                "title": "V3BinanceSnapshotsListResponse",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/V3BinanceSnapshot"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/V3Pagination"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination",
+                    "meta"
+                ]
+            },
+            "V3BinanceTradeResponse": {
+                "type": "object",
+                "title": "V3BinanceTradeResponse",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/V3BinanceTrade"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "meta"
+                ]
+            },
+            "V3BinanceTradesListResponse": {
+                "type": "object",
+                "title": "V3BinanceTradesListResponse",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/V3BinanceTrade"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/V3Pagination"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination",
+                    "meta"
+                ]
+            },
+            "V3BatchSubRequest": {
+                "type": "object",
+                "title": "V3BatchSubRequest",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Caller-defined id, echoed in the response"
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "Relative v3 GET path (e.g. /v3/btc/markets?type=5m&limit=10)"
+                    }
+                },
+                "required": [
+                    "id",
+                    "path"
+                ]
+            },
+            "V3BatchRequest": {
+                "type": "object",
+                "title": "V3BatchRequest",
+                "properties": {
+                    "requests": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 10,
+                        "items": {
+                            "$ref": "#/components/schemas/V3BatchSubRequest"
+                        }
+                    }
+                },
+                "required": [
+                    "requests"
+                ]
+            },
+            "V3BatchSubResponse": {
+                "type": "object",
+                "title": "V3BatchSubResponse",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "body": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "status",
+                    "body"
+                ]
+            },
+            "V3BatchResponse": {
+                "type": "object",
+                "title": "V3BatchResponse",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/V3BatchSubResponse"
+                        }
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "meta"
+                ]
+            },
+            "V3MeResponse": {
+                "type": "object",
+                "title": "V3MeResponse",
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "user_id": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string"
+                            },
+                            "plan": {
+                                "type": "string"
+                            },
+                            "limits": {
+                                "type": "object",
+                                "additionalProperties": true
+                            },
+                            "enterprise": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "plan_id": {
+                                                "type": "string"
+                                            },
+                                            "slug": {
+                                                "type": "string"
+                                            },
+                                            "rate_limits": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "maxPerSecond": {
+                                                        "type": "integer"
+                                                    },
+                                                    "maxPerMinute": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "integer"
+                                                            },
+                                                            {
+                                                                "type": "null"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "routing": {
+                                                "type": "object",
+                                                "additionalProperties": true
+                                            },
+                                            "limits_override": {
+                                                "type": "object",
+                                                "additionalProperties": true
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "meta"
+                ]
+            },
+            "V3HealthResponse": {
+                "type": "object",
+                "title": "V3HealthResponse",
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "status": {
+                                "type": "string"
+                            },
+                            "service": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/V3Meta"
+                    }
+                },
+                "required": [
+                    "data",
+                    "meta"
+                ]
             }
         }
     },
     "tags": [
+        {
+            "name": "v3 - Markets"
+        },
+        {
+            "name": "v3 - Binance Spot"
+        },
+        {
+            "name": "v3 - Binance Futures"
+        },
+        {
+            "name": "v3 - Utility"
+        },
         {
             "name": "Health"
         },
@@ -2236,6 +4769,15 @@
             "name": "System",
             "tags": [
                 "Health"
+            ]
+        },
+        {
+            "name": "API v3",
+            "tags": [
+                "v3 - Markets",
+                "v3 - Binance Spot",
+                "v3 - Binance Futures",
+                "v3 - Utility"
             ]
         },
         {

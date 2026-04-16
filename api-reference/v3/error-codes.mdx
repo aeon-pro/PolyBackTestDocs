@@ -1,0 +1,79 @@
+---
+title: 'Error Codes'
+description: 'Stable, machine-readable error codes returned by every v3 endpoint.'
+---
+
+Every v3 error follows the same shape:
+
+```json
+{
+  "error": {
+    "code": "RATE_LIMIT_BURST",
+    "message": "Burst limit exceeded. Max 10 requests per second.",
+    "details": { "retry_after": 1, "limit": 10, "window": "second" }
+  },
+  "meta": { "request_id": "req_a1b2c3d4e5f6", "timestamp": "2026-04-16T12:00:00Z" }
+}
+```
+
+Branch on `error.code`, not on `error.message` (messages may evolve).
+
+## Authentication (401)
+
+| Code | When |
+|---|---|
+| `AUTH_MISSING` | No API key was provided. |
+| `AUTH_INVALID` | API key is unknown, revoked, or otherwise invalid. |
+| `AUTH_EXPIRED` | API key is past its expiration date. |
+
+## Authorization (402 / 403)
+
+| Code | When |
+|---|---|
+| `PLAN_UPGRADE_REQUIRED` | The requested feature requires a higher plan tier (HTTP 402). |
+| `ENTERPRISE_ONLY` | A non-enterprise key was used on `enterprise.polybacktest.com`. |
+| `COIN_NOT_IN_PLAN` | Your plan does not grant access to this coin (e.g. ETH on free). |
+| `ENDPOINT_NOT_IN_PLAN` | This data type is blocked for your plan (e.g. spot trades on free). |
+| `HISTORY_LIMIT_EXCEEDED` | The requested time range exceeds your plan's history window. |
+
+## Rate limiting (429)
+
+| Code | When |
+|---|---|
+| `RATE_LIMIT_BURST` | Per-second burst limit exceeded. `details.retry_after` tells you when to retry. |
+| `RATE_LIMIT_SUSTAINED` | Per-minute sustained limit exceeded. |
+
+The 429 response also carries a `Retry-After` header.
+
+## Validation (400)
+
+| Code | When |
+|---|---|
+| `INVALID_COIN` | Coin path segment is not `btc`, `eth`, or `sol`. |
+| `INVALID_PARAMETER` | A query parameter has an invalid value (`details.parameter` names the field). |
+| `INVALID_CURSOR` | The cursor is malformed or unreadable. |
+| `INVALID_TIMESTAMP` | Timestamp can't be parsed (must be ms epoch or ISO-8601). |
+| `BATCH_TOO_LARGE` | Batch request contains more than 10 sub-requests. |
+| `BATCH_INVALID_PATH` | A batch sub-request has a malformed or non-v3 path. |
+
+## Not found (404)
+
+| Code | When |
+|---|---|
+| `MARKET_NOT_FOUND` | No market with the given ID or slug. |
+| `SNAPSHOT_NOT_FOUND` | No snapshot within ~2 seconds of the requested timestamp. |
+| `ENDPOINT_NOT_FOUND` | The path doesn't match any v3 route. |
+
+## Server (5xx)
+
+| Code | When |
+|---|---|
+| `INTERNAL_ERROR` | Unexpected server error (HTTP 500). |
+| `UPSTREAM_UNAVAILABLE` | A backend service is unreachable (HTTP 502). |
+| `DATABASE_UNAVAILABLE` | Database connection failed (HTTP 503). |
+
+## Deprecated (410)
+
+| Code | When |
+|---|---|
+| `API_VERSION_DISCONTINUED` | v1 (already), v2 (after the sunset window). |

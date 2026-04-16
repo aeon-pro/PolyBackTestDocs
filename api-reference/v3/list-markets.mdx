@@ -1,0 +1,21 @@
+---
+title: 'List Markets'
+openapi: 'GET /v3/{coin}/markets'
+---
+
+## What you get
+
+Cursor-paginated markets for `{coin}` (btc, eth, or sol), newest first.
+
+<Info>Use `type=5m|15m|1h|4h|24h` to filter by market interval. Omit it to see every market type the coin publishes.</Info>
+
+## Pagination
+
+Pass `pagination.next_cursor` from one response as `?cursor=` on the next request. Stop when `pagination.has_more === false`. `total_count` is only included when you pass `?include_count=true`.
+
+<Tip>For backtest-style deep history, cursor pagination stays O(1) at any depth and uses the same indexes. Keep sending the cursor forward without bouncing back to offset.</Tip>
+
+## Plan access
+
+- **Free**: limited to the most recent N markets per coin × type (see [Available Data](/available-data)).
+- **Pro / Enterprise**: unlimited history.

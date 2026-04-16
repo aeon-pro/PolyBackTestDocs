@@ -1,0 +1,18 @@
+---
+title: 'List Market Snapshots'
+openapi: 'GET /v3/{coin}/markets/{market_id}/snapshots'
+---
+
+## Snapshot payload
+
+Each snapshot captures:
+
+- **Coin price** — the underlying crypto price at capture time (field name depends on coin: `btc_price`, `eth_price`, `sol_price`).
+- **UP / DOWN prices** — current probability of each outcome.
+- **Order book** (optional) — pass `?include_orderbook=true` for full bid/ask depth.
+
+## Pagination
+
+Snapshots are ordered **ascending** by time. Pass `pagination.next_cursor` forward and stop on `has_more === false`. The default `limit` is 100, max 1000.
+
+<Warning>Requesting `include_orderbook=true` at high `limit` returns much larger payloads. Keep `limit` modest or paginate in smaller pages.</Warning>

@@ -28,46 +28,99 @@
                 "pages": [
                     "api-reference/authorization",
                     {
-                        "group": "Polymarket Up/Down Markets",
+                        "group": "API v3",
+                        "expanded": true,
                         "pages": [
+                            "api-reference/v3/overview",
+                            "api-reference/v3/error-codes",
                             {
-                                "group": "Markets",
+                                "group": "Polymarket Up/Down Markets",
                                 "expanded": true,
                                 "pages": [
-                                    "api-reference/endpoint/list-markets",
-                                    "api-reference/endpoint/get-market",
-                                    "api-reference/endpoint/get-market-by-slug"
+                                    "api-reference/v3/list-markets",
+                                    "api-reference/v3/get-market",
+                                    "api-reference/v3/get-market-by-slug",
+                                    "api-reference/v3/list-snapshots",
+                                    "api-reference/v3/snapshot-at"
                                 ]
                             },
                             {
-                                "group": "Snapshots",
+                                "group": "Binance Spot",
                                 "expanded": true,
                                 "pages": [
-                                    "api-reference/endpoint/get-snapshots",
-                                    "api-reference/endpoint/get-snapshot-at"
+                                    "api-reference/v3/spot-latest",
+                                    "api-reference/v3/spot-snapshots",
+                                    "api-reference/v3/spot-trades-latest",
+                                    "api-reference/v3/spot-trades"
+                                ]
+                            },
+                            {
+                                "group": "Binance Futures",
+                                "expanded": true,
+                                "pages": [
+                                    "api-reference/v3/futures-latest",
+                                    "api-reference/v3/futures-snapshots",
+                                    "api-reference/v3/futures-trades-latest",
+                                    "api-reference/v3/futures-trades"
+                                ]
+                            },
+                            {
+                                "group": "Utility",
+                                "expanded": true,
+                                "pages": [
+                                    "api-reference/v3/health",
+                                    "api-reference/v3/me",
+                                    "api-reference/v3/batch"
                                 ]
                             }
                         ]
                     },
                     {
-                        "group": "Binance Data",
+                        "group": "API v2 (deprecated)",
                         "pages": [
                             {
-                                "group": "Spot",
-                                "expanded": true,
+                                "group": "Polymarket Up/Down Markets",
                                 "pages": [
-                                    "api-reference/endpoint/spot-latest",
-                                    "api-reference/endpoint/spot-orderbooks",
-                                    "api-reference/endpoint/spot-trades"
+                                    {
+                                        "group": "Markets",
+                                        "expanded": true,
+                                        "pages": [
+                                            "api-reference/endpoint/list-markets",
+                                            "api-reference/endpoint/get-market",
+                                            "api-reference/endpoint/get-market-by-slug"
+                                        ]
+                                    },
+                                    {
+                                        "group": "Snapshots",
+                                        "expanded": true,
+                                        "pages": [
+                                            "api-reference/endpoint/get-snapshots",
+                                            "api-reference/endpoint/get-snapshot-at"
+                                        ]
+                                    }
                                 ]
                             },
                             {
-                                "group": "Futures",
-                                "expanded": true,
+                                "group": "Binance Data",
                                 "pages": [
-                                    "api-reference/endpoint/futures-latest",
-                                    "api-reference/endpoint/futures-orderbooks",
-                                    "api-reference/endpoint/futures-trades"
+                                    {
+                                        "group": "Spot",
+                                        "expanded": true,
+                                        "pages": [
+                                            "api-reference/endpoint/spot-latest",
+                                            "api-reference/endpoint/spot-orderbooks",
+                                            "api-reference/endpoint/spot-trades"
+                                        ]
+                                    },
+                                    {
+                                        "group": "Futures",
+                                        "expanded": true,
+                                        "pages": [
+                                            "api-reference/endpoint/futures-latest",
+                                            "api-reference/endpoint/futures-orderbooks",
+                                            "api-reference/endpoint/futures-trades"
+                                        ]
+                                    }
                                 ]
                             }
                         ]
