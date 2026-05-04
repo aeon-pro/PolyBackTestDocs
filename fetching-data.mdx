@@ -1,11 +1,11 @@
 ---
-title: 'Fetching Data & Pagination'
-description: 'Time filters, cursor pagination, and how to drain a time range cleanly'
-icon: 'filter'
+title: "Fetching Data & Pagination"
+description: "Time filters, cursor pagination, and how to drain a time range cleanly"
+icon: "filter"
 ---
 
 <Note>
-This guide uses the current **v3** API. v2 is still live through its sunset window but uses `limit`/`offset` pagination and a different response envelope - see [API v2 (deprecated)](/api-reference/endpoint/list-markets) if you need the legacy docs.
+  This guide uses the current **v3** API. v2 is still live through its sunset window but uses `limit`/`offset` pagination and a different response envelope - see [API v2 (deprecated)](/api-reference/endpoint/list-markets) if you need the legacy docs.
 </Note>
 
 ## Time Filtering
@@ -13,13 +13,14 @@ This guide uses the current **v3** API. v2 is still live through its sunset wind
 Most endpoints return time-series data - market snapshots, orderbooks, trades. Use `start_time` and `end_time` to focus a query on a specific window.
 
 The API accepts timestamps in two formats:
+
 1. **Millisecond Epoch**: e.g., `1709006400000` (recommended for programmatic access)
 2. **ISO8601 String**: e.g., `2026-02-27T04:00:00Z` (useful for manual testing)
 
 ### Query Parameters
 
 | Parameter | Type | Description |
-| :--- | :--- | :--- |
+| :-- | :-- | :-- |
 | `start_time` | string \| integer | Return records **after** this timestamp. |
 | `end_time` | string \| integer | Return records **before** this timestamp. (Defaults to now on Binance endpoints if omitted.) |
 
@@ -38,17 +39,17 @@ curl "https://api.polybacktest.com/v3/eth/spot/trades?start_time=1708992000000&e
 ```
 
 <Tip>
-The coin is now a path segment (`/v3/{coin}/...`), not a query parameter. Every v3 request picks a single coin at the URL level.
+  The coin is now a path segment (`/v3/{coin}/...`), not a query parameter. Every v3 request picks a single coin at the URL level.
 </Tip>
 
 ---
 
 ## Pagination
 
-v3 uses **cursor pagination** (keyset / seek) instead of v2's `limit`/`offset`. Cursors stay O(1) at any depth, hit the same DB indexes, and remain stable under concurrent writes.
+v3 uses **cursor pagination** (keyset / seek) instead of v2 `limit`/`offset`. Cursors stay O(1) at any depth, hit the same DB indexes, and remain stable under concurrent writes.
 
 | Parameter | Default | Maximum | Description |
-| :--- | :--- | :--- | :--- |
+| :-- | :-- | :-- | :-- |
 | `limit` | Varies | Varies | Number of results per page. |
 | `cursor` | - | - | Opaque cursor from the previous response's `pagination.next_cursor`. |
 | `include_count` | `false` | - | Set `true` to populate `pagination.total_count` (triggers a `COUNT(*)` - avoid unless needed). |
@@ -56,6 +57,7 @@ v3 uses **cursor pagination** (keyset / seek) instead of v2's `limit`/`offset`. 
 ### Maximum Limits
 
 Different endpoints cap the `limit` to protect backend performance:
+
 - **List Markets**: Max `100` markets per request.
 - **Snapshots & Binance Data**: Max `1000` records per request.
 
@@ -111,7 +113,7 @@ print(f"Total snapshots fetched: {len(all_snapshots)}")
 ```
 
 <Warning>
-The legacy v2 `?offset=N` parameter still works on v3 endpoints for back-compat, but is deprecated. Mixing `offset` and `cursor` is not supported - if both are provided, `cursor` wins.
+  The legacy v2 `?offset=N` parameter still works on v3 endpoints for back-compat, but is deprecated. Mixing `offset` and `cursor` is not supported - if both are provided, `cursor` wins.
 </Warning>
 
 ---
@@ -140,4 +142,4 @@ ISO8601 strings are human-readable and good for manual testing. For production s
 
 ### 5. Batch where it helps
 
-If your page load fans out several independent GETs (e.g. latest BTC spot + latest ETH futures + BTC markets list), consider `POST /v3/batch` to collapse them into one round trip. Each sub-request still counts as one rate-limit hit. See the [Batch endpoint docs](/api-reference/v3/batch).
+If your page load fans out several independent GETs (e.g. latest BTC spot \+ latest ETH futures \+ BTC markets list), consider `POST /v3/batch` to collapse them into one round trip. Each sub-request still counts as one rate-limit hit. See the [Batch endpoint docs](/api-reference/v3/batch).
