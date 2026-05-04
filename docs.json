@@ -65,6 +65,20 @@
                                 ]
                             },
                             {
+                                "group": "Equity Markets",
+                                "expanded": true,
+                                "pages": [
+                                    "api-reference/v3/equity/list-markets",
+                                    "api-reference/v3/equity/get-market",
+                                    "api-reference/v3/equity/get-market-by-slug",
+                                    "api-reference/v3/equity/list-snapshots",
+                                    "api-reference/v3/equity/snapshot-at",
+                                    "api-reference/v3/equity/list-prices",
+                                    "api-reference/v3/equity/latest-price",
+                                    "api-reference/v3/equity/price-at"
+                                ]
+                            },
+                            {
                                 "group": "Utility",
                                 "expanded": true,
                                 "pages": [

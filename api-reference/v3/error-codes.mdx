@@ -32,7 +32,8 @@ Branch on `error.code`, not on `error.message` (messages may evolve).
 |---|---|
 | `PLAN_UPGRADE_REQUIRED` | The requested feature requires a higher plan tier (HTTP 402). |
 | `ENTERPRISE_ONLY` | A non-enterprise key was used on `enterprise.polybacktest.com`. |
-| `COIN_NOT_IN_PLAN` | Your plan does not grant access to this coin (e.g. ETH on free). |
+| `COIN_NOT_IN_PLAN` | Your plan does not grant access to this coin (e.g. ETH on free). Also returned for equity symbols (SPX, SPY, etc.) when used on a Free plan. |
+| `SYMBOL_NOT_IN_PLAN` | Returned by the equity worker when a Free key reaches it directly (the gateway usually short-circuits with `COIN_NOT_IN_PLAN` first). |
 | `ENDPOINT_NOT_IN_PLAN` | This data type is blocked for your plan (e.g. spot trades on free). |
 | `HISTORY_LIMIT_EXCEEDED` | The requested time range exceeds your plan's history window. |
 
@@ -50,6 +51,7 @@ The 429 response also carries a `Retry-After` header.
 | Code | When |
 |---|---|
 | `INVALID_COIN` | Coin path segment is not `btc`, `eth`, or `sol`. |
+| `INVALID_SYMBOL` | Equity symbol path segment is not one of `spx`, `spx-open`, `spy`, `wti`, `xauusd`. |
 | `INVALID_PARAMETER` | A query parameter has an invalid value (`details.parameter` names the field). |
 | `INVALID_CURSOR` | The cursor is malformed or unreadable. |
 | `INVALID_TIMESTAMP` | Timestamp can't be parsed (must be ms epoch or ISO-8601). |
@@ -62,6 +64,7 @@ The 429 response also carries a `Retry-After` header.
 |---|---|
 | `MARKET_NOT_FOUND` | No market with the given ID or slug. |
 | `SNAPSHOT_NOT_FOUND` | No snapshot within ~2 seconds of the requested timestamp. |
+| `PRICE_NOT_FOUND` | (Equity only) No underlying-price tick within 60 seconds of the requested timestamp, or no ticks at all from `/prices/latest`. |
 | `ENDPOINT_NOT_FOUND` | The path doesn't match any v3 route. |
 
 ## Server (5xx)

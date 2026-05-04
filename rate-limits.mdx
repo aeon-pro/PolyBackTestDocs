@@ -55,7 +55,7 @@ v3 error responses include a stable `error.code` so you can branch on burst vs. 
 }
 ```
 
-## Coin Access by Plan
+## Coin & Symbol Access by Plan
 
 ETH and SOL data is available to **Pro** and **Enterprise** users. Free-plan users can only query BTC. Attempting `/v3/eth/...` or `/v3/sol/...` on a free plan returns `402`:
 
@@ -70,6 +70,8 @@ ETH and SOL data is available to **Pro** and **Enterprise** users. Free-plan use
 }
 ```
 
+**All equity symbols** (`spx`, `spx-open`, `spy`, `wti`, `xauusd`) are Pro-only. Free-plan calls to `/v3/equity/{symbol}/...` are rejected at the gateway with the same `COIN_NOT_IN_PLAN` shape (with `details.symbol` set instead of `details.coin`).
+
 ## Plan-Based Market Limits
 
 Access to market data depends on your plan. Free-plan users can access a limited window of the **most recent** BTC markets for each timeframe. Pro users have **unlimited** access.
@@ -83,6 +85,12 @@ Access to market data depends on your plan. Free-plan users can access a limited
 | **1h** | 24 | Unlimited (for accessible markets) |
 | **4h** | 24 | Unlimited (for accessible markets) |
 | **24h** | 5 | Unlimited (for accessible markets) |
+
+### Equity Symbols (Pro only)
+
+| Symbol | Free | Pro / Enterprise |
+| :--- | :--- | :--- |
+| `spx`, `spx-open`, `spy`, `wti`, `xauusd` | No access (`402`) | Unlimited markets, snapshots, and underlying-price ticks |
 
 <Info>
   **"Latest"** means the most recently created markets, sorted by start time. As new markets are created, older ones rotate out of the free-plan window.

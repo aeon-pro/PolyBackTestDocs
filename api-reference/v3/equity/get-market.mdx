@@ -1,0 +1,34 @@
+---
+title: 'Get Equity Market'
+openapi: 'GET /v3/equity/{symbol}/markets/{market_id}'
+---
+
+## What you get
+
+A single equity market resolved by `{market_id}`, under the v3 envelope.
+
+## Example
+
+```bash
+curl 'https://api.polybacktest.com/v3/equity/spx/markets/1054321' \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+```json
+{
+  "data": {
+    "market_id": "1054321",
+    "slug": "spx-up-or-down-on-april-28-2026",
+    "symbol": "spx",
+    "start_time": "2026-04-28T13:30:00Z",
+    "end_time": "2026-04-28T20:00:00Z",
+    "winner": "up",
+    "...": "..."
+  },
+  "meta": { "request_id": "req_...", "timestamp": "2026-04-28T12:00:00Z" }
+}
+```
+
+<Info>404s surface as `MARKET_NOT_FOUND` in the error envelope. Free-plan keys hitting an equity symbol receive `402 PLAN_UPGRADE_REQUIRED`.</Info>
+
+<Tip>If you only have the URL slug (e.g. from a Polymarket page), use [Get Equity Market by Slug](/api-reference/v3/equity/get-market-by-slug) instead.</Tip>

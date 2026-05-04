@@ -1,0 +1,89 @@
+---
+title: 'List Equity Market Snapshots'
+openapi: 'GET /v3/equity/{symbol}/markets/{market_id}/snapshots'
+---
+
+## What you get
+
+Cursor-paginated CLOB snapshots for one equity market, ordered **ascending** by time. Each snapshot captures both the underlying-price reading at that moment and the Up/Down probabilities derived from the order book.
+
+By default the response is a **uniform 100-millisecond timeline** — gaps between content-changed rows are filled with carry-forward snapshots (see [Carry-forward fill](#carry-forward-fill)).
+
+## Snapshot payload
+
+| Field | Notes |
+|---|---|
+| `id` | Positive `BIGSERIAL` for real (content-changed) rows. **Negative** for synthetic carry-forward rows (so cursor pagination can distinguish them). |
+| `time` | UTC timestamp of the snapshot. |
+| `price` | Underlying equity price at capture time, sourced from the equity-prices feed. May be `null` if no tick has landed yet (e.g. pre-market). **Always `null` for `spx` and `spx-open`** — Polymarket does not publish an SPX tick stream. |
+| `price_up` / `price_down` | Current Up/Down probability from the CLOB best ask. |
+| `orderbook_up` / `orderbook_down` | Optional. Pass `?include_orderbook=true` for full bid/ask depth. |
+| `is_carried_forward` | Present and `true` on synthetic rows (orderbook unchanged since the previous real row). Absent on real rows. |
+
+## Example
+
+```bash
+curl 'https://api.polybacktest.com/v3/equity/spx/markets/1054321/snapshots?limit=200' \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+```json
+{
+  "data": [
+    {
+      "id": 9_812_004,
+      "time": "2026-04-28T13:30:01Z",
+      "price": 5247.83,
+      "price_up": 0.61,
+      "price_down": 0.39
+    }
+  ],
+  "pagination": { "next_cursor": "...", "has_more": true, "limit": 200, "count": 200 },
+  "meta": { "request_id": "req_...", "timestamp": "2026-04-28T13:30:30Z" }
+}
+```
+
+## Carry-forward fill
+
+The snapshot writer dedupes by content hash — if the orderbook didn't change between two polls, no row is written. Without filling, this looks like sparse, irregular timestamps even though the worker was actually polling every second.
+
+The API smooths this over by **synthesizing carry-forward rows at a fixed cadence** between real (content-changed) rows. Synthetic rows are marked `is_carried_forward: true` and copy the previous real row's `price_up`, `price_down`, `price`, and orderbook fields. The trailing edge is capped at the snapshot worker's `equity_snapshot_heartbeat.last_seen` so we never invent rows for a time the worker hasn't polled.
+
+| `?fill=` | Behavior |
+|---|---|
+| _omitted_ (default) | `100ms` cadence — uniform 10-rows-per-second timeline (matches the snapshot worker's poll rate). |
+| `1s`, `500ms`, `2s`, … | Override the cadence. Floor is 100 ms. |
+| `none` / `off` / `0` | No filling — only real, content-changed rows. |
+
+```bash
+# Default — uniform 100ms timeline with carry-forward
+curl 'https://api.polybacktest.com/v3/equity/spy/markets/2132197/snapshots?limit=200' \
+  -H "X-API-Key: $POLY_KEY"
+
+# Just the real rows (the historical default)
+curl 'https://api.polybacktest.com/v3/equity/spy/markets/2132197/snapshots?fill=none&limit=200' \
+  -H "X-API-Key: $POLY_KEY"
+
+# Coarser 1-second cadence (smaller payloads, fewer synthetic rows)
+curl 'https://api.polybacktest.com/v3/equity/spy/markets/2132197/snapshots?fill=1s&limit=200' \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+<Note>`pagination.total_count` always reflects the count of **real** rows in the window — synthetic rows aren't counted (they're recomputed on every request as the heartbeat advances).</Note>
+
+<Warning>The default 100 ms cadence emits up to 10 rows per second. With `limit=100` that's ~10 seconds of wall-clock per page; with `limit=1000`, ~100 seconds. Combine with `?include_orderbook=true` and the orderbook JSON is duplicated across each synthetic row — payloads get large fast. For broad-window scans, pass a coarser `?fill=1s` (or `?fill=none` for raw rows).</Warning>
+
+## Pagination & filters
+
+- Walk forward in time by passing `pagination.next_cursor` as `?cursor=`. Stop on `has_more === false`. Cursor pagination works seamlessly across real and synthetic rows.
+- `?start_time=` / `?end_time=` (ms epoch or ISO-8601) bound the window.
+- `limit` defaults to 100, max 1000.
+- `?include_count=true` opts into `pagination.total_count` (real rows only — see note above).
+
+<Warning>Requesting `include_orderbook=true` at high `limit` returns much larger payloads. Keep `limit` modest or paginate in smaller pages.</Warning>
+
+## Errors
+
+- `404 MARKET_NOT_FOUND` — unknown `{market_id}` for this symbol.
+- `402 PLAN_UPGRADE_REQUIRED` — Free key against a Pro-only equity symbol.
+- `400 INVALID_CURSOR` / `INVALID_TIMESTAMP` — malformed cursor, `start_time` / `end_time`, or `fill` value.

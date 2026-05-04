@@ -36,3 +36,27 @@ Real-time orderbook snapshots and aggregated trades from Binance are also tracke
 v3 URLs: `GET /v3/{coin}/spot/latest`, `GET /v3/{coin}/spot/snapshots`, `GET /v3/{coin}/spot/trades`, `GET /v3/{coin}/futures/...`.
 </Tip>
 
+## Polymarket Equity Up/Down Markets
+
+Daily Up/Down prediction markets on traditional-finance underlyings, each with raw underlying-price ticks captured alongside the CLOB snapshots.
+
+| Symbol | v3 Path Segment | Underlying | Underlying-price feed | Plan |
+| :--- | :--- | :--- | :--- | :--- |
+| **S&P 500 (Close)** | `spx` | SPX index, end-of-session market | ❌ none | Pro only |
+| **S&P 500 (Open)**  | `spx-open` | SPX index, opening-session market | ❌ none | Pro only |
+| **SPDR S&P 500 ETF** | `spy` | SPY ETF | ✅ | Pro only |
+| **WTI Crude Oil**   | `wti` | WTI front-month | ✅ | Pro only |
+| **Gold (XAU/USD)**  | `xauusd` | Spot gold | ✅ | Pro only |
+
+<Tip>
+v3 URLs: `GET /v3/equity/{symbol}/markets`, `GET /v3/equity/{symbol}/markets/{market_id}/snapshots`, `GET /v3/equity/{symbol}/prices`, `GET /v3/equity/{symbol}/prices/latest`, `GET /v3/equity/{symbol}/prices/at/{timestamp}`.
+</Tip>
+
+<Info>
+Equity markets are **daily** (no `5m` / `15m` / `4h` / etc. variants). All equity symbols are Pro-only — Free keys receive `402 PLAN_UPGRADE_REQUIRED` (or `403 COIN_NOT_IN_PLAN` at the gateway).
+</Info>
+
+<Warning>
+**`spx` and `spx-open` have no underlying-price feed.** Polymarket does not publish an SPX index tick stream on RTDS, and they don't expose price-to-beat for SPX either. For those two symbols the `price_start`, `price_end`, and per-snapshot `price` columns are permanently `null`, and the `/v3/equity/spx/prices*` endpoints return empty / 404. CLOB-derived data (`price_up`, `price_down`, `winner`, `final_volume`, `final_liquidity`) is populated normally — only the underlying value is missing. `spy`, `wti`, and `xauusd` have full underlying-price coverage.
+</Warning>
+

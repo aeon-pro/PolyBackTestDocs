@@ -3255,6 +3255,683 @@
                     "v2 - Futures"
                 ]
             }
+        },
+        "/v3/equity/{symbol}/markets": {
+            "get": {
+                "tags": [
+                    "v3 - Equity"
+                ],
+                "summary": "List equity markets",
+                "description": "Cursor-paginated list of daily Up/Down equity markets for a symbol. Sorted by `start_time` desc.",
+                "operationId": "v3_equity_list_markets",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "spx",
+                                "spx-open",
+                                "spy",
+                                "wti",
+                                "xauusd"
+                            ]
+                        },
+                        "description": "Equity routing key. Available: spx, spx-open, spy, wti, xauusd."
+                    },
+                    {
+                        "name": "resolved",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "true = only resolved markets, false = only open markets."
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Lower bound — millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Upper bound — millisecond epoch or ISO-8601."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 50
+                        },
+                        "description": "Items per page (max 100)."
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor from a previous response's `pagination.next_cursor`."
+                    },
+                    {
+                        "name": "include_count",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "Include `pagination.total_count`. Triggers a COUNT(*); leave off unless you need it."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3EquityMarketsListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (invalid symbol, cursor, parameter, timestamp, …)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure (missing or invalid API key)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required (equity is Pro-only)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Symbol not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/equity/{symbol}/markets/{market_id}": {
+            "get": {
+                "tags": [
+                    "v3 - Equity"
+                ],
+                "summary": "Get equity market by ID",
+                "operationId": "v3_equity_get_market",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "spx",
+                                "spx-open",
+                                "spy",
+                                "wti",
+                                "xauusd"
+                            ]
+                        },
+                        "description": "Equity routing key."
+                    },
+                    {
+                        "name": "market_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3EquityMarketResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Market not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/equity/{symbol}/markets/by-slug/{slug}": {
+            "get": {
+                "tags": [
+                    "v3 - Equity"
+                ],
+                "summary": "Get equity market by slug",
+                "operationId": "v3_equity_get_market_by_slug",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "spx",
+                                "spx-open",
+                                "spy",
+                                "wti",
+                                "xauusd"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3EquityMarketResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Market not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/equity/{symbol}/markets/{market_id}/snapshots": {
+            "get": {
+                "tags": [
+                    "v3 - Equity"
+                ],
+                "summary": "List equity snapshots",
+                "description": "Cursor-paginated snapshots for a market. Ordered ascending by time. Default limit 100, max 1000.",
+                "operationId": "v3_equity_list_snapshots",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "spx",
+                                "spx-open",
+                                "spy",
+                                "wti",
+                                "xauusd"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "market_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "include_orderbook",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "Include `orderbook_up` / `orderbook_down` JSON in each snapshot."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "include_count",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "fill",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "100ms"
+                        },
+                        "description": "Carry-forward cadence for deduped snapshots. `100ms` (default) synthesizes carry-forward rows between real rows so the timeline is uniform; supports `<n>s`, `<n>ms`, or `none`/`off`/`0` to disable. Synthetic rows are marked `is_carried_forward: true` and have a negative `id`."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3EquitySnapshotsListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Market not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/equity/{symbol}/markets/{market_id}/snapshots/at/{timestamp}": {
+            "get": {
+                "tags": [
+                    "v3 - Equity"
+                ],
+                "summary": "Equity snapshot at timestamp",
+                "description": "Returns the closest snapshot to a given timestamp (within 2 seconds).",
+                "operationId": "v3_equity_get_snapshot_at",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "spx",
+                                "spx-open",
+                                "spy",
+                                "wti",
+                                "xauusd"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "market_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "timestamp",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Target time — millisecond epoch or ISO-8601."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3EquitySnapshotAtResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No snapshot found within the tolerance window",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/equity/{symbol}/prices": {
+            "get": {
+                "tags": [
+                    "v3 - Equity"
+                ],
+                "summary": "List equity price ticks",
+                "description": "Latest-first cursor-paginated raw price ticks for the underlying symbol (RTDS feed).",
+                "operationId": "v3_equity_list_prices",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "spx",
+                                "spx-open",
+                                "spy",
+                                "wti",
+                                "xauusd"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000,
+                            "default": 100
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3EquityPricesListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/equity/{symbol}/prices/latest": {
+            "get": {
+                "tags": [
+                    "v3 - Equity"
+                ],
+                "summary": "Latest equity price tick",
+                "operationId": "v3_equity_latest_price",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "spx",
+                                "spx-open",
+                                "spy",
+                                "wti",
+                                "xauusd"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3EquityPriceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No price tick recorded yet",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/equity/{symbol}/prices/at/{timestamp}": {
+            "get": {
+                "tags": [
+                    "v3 - Equity"
+                ],
+                "summary": "Equity price tick at timestamp",
+                "description": "Closest underlying price tick to the given timestamp (within 60 seconds).",
+                "operationId": "v3_equity_price_at",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "spx",
+                                "spx-open",
+                                "spy",
+                                "wti",
+                                "xauusd"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "timestamp",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3EquityPriceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No price tick within 60 seconds of the requested timestamp",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -4575,6 +5252,215 @@
                     "data",
                     "meta"
                 ]
+            },
+            "V3EquityMarket": {
+                "type": "object",
+                "title": "V3EquityMarket",
+                "description": "A daily Up/Down equity prediction market.",
+                "properties": {
+                    "market_id": {
+                        "type": "string"
+                    },
+                    "event_id": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "description": "Underlying symbol stored in the row (e.g. 'spx'). May differ from the routing-key path segment when one symbol has multiple session markets (SPX vs SPX-Open)."
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "price_start": {
+                        "anyOf": [
+                            { "type": "number" },
+                            { "type": "null" }
+                        ],
+                        "description": "Underlying price at market start."
+                    },
+                    "price_end": {
+                        "anyOf": [
+                            { "type": "number" },
+                            { "type": "null" }
+                        ],
+                        "description": "Underlying price at market end (filled when resolved)."
+                    },
+                    "condition_id": {
+                        "anyOf": [{ "type": "string" }, { "type": "null" }]
+                    },
+                    "clob_token_up": {
+                        "anyOf": [{ "type": "string" }, { "type": "null" }]
+                    },
+                    "clob_token_down": {
+                        "anyOf": [{ "type": "string" }, { "type": "null" }]
+                    },
+                    "winner": {
+                        "anyOf": [
+                            { "type": "string", "enum": ["up", "down"] },
+                            { "type": "null" }
+                        ]
+                    },
+                    "final_volume": {
+                        "anyOf": [{ "type": "number" }, { "type": "null" }]
+                    },
+                    "final_liquidity": {
+                        "anyOf": [{ "type": "number" }, { "type": "null" }]
+                    },
+                    "resolved_at": {
+                        "anyOf": [
+                            { "type": "string", "format": "date-time" },
+                            { "type": "null" }
+                        ]
+                    }
+                },
+                "required": [
+                    "market_id",
+                    "event_id",
+                    "slug",
+                    "symbol",
+                    "start_time",
+                    "end_time"
+                ]
+            },
+            "V3EquitySnapshot": {
+                "type": "object",
+                "title": "V3EquitySnapshot",
+                "properties": {
+                    "id": { "type": "integer" },
+                    "time": { "type": "string", "format": "date-time" },
+                    "market_id": { "type": "string" },
+                    "price": {
+                        "anyOf": [{ "type": "number" }, { "type": "null" }],
+                        "description": "Underlying equity price at snapshot time, when known."
+                    },
+                    "price_up": {
+                        "anyOf": [{ "type": "number" }, { "type": "null" }]
+                    },
+                    "price_down": {
+                        "anyOf": [{ "type": "number" }, { "type": "null" }]
+                    },
+                    "orderbook_up": {
+                        "anyOf": [
+                            { "type": "object", "additionalProperties": true },
+                            { "type": "null" }
+                        ],
+                        "description": "Only included when ?include_orderbook=true"
+                    },
+                    "orderbook_down": {
+                        "anyOf": [
+                            { "type": "object", "additionalProperties": true },
+                            { "type": "null" }
+                        ],
+                        "description": "Only included when ?include_orderbook=true"
+                    },
+                    "content_hash": {
+                        "anyOf": [{ "type": "string" }, { "type": "null" }],
+                        "description": "Stable hash of the orderbook payload (used for dedupe)."
+                    }
+                },
+                "required": ["id", "time", "market_id"]
+            },
+            "V3EquityPrice": {
+                "type": "object",
+                "title": "V3EquityPrice",
+                "description": "Raw underlying-price tick from the Polymarket RTDS feed.",
+                "properties": {
+                    "id": { "type": "integer" },
+                    "symbol": { "type": "string" },
+                    "price": { "type": "number" },
+                    "source_ts": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp from the upstream feed."
+                    },
+                    "received_ts": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp this worker received the tick."
+                    }
+                },
+                "required": ["id", "symbol", "price", "source_ts", "received_ts"]
+            },
+            "V3EquityMarketResponse": {
+                "type": "object",
+                "title": "V3EquityMarketResponse",
+                "properties": {
+                    "data": { "$ref": "#/components/schemas/V3EquityMarket" },
+                    "meta": { "$ref": "#/components/schemas/V3Meta" }
+                },
+                "required": ["data", "meta"]
+            },
+            "V3EquityMarketsListResponse": {
+                "type": "object",
+                "title": "V3EquityMarketsListResponse",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/V3EquityMarket" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/V3Pagination" },
+                    "meta": { "$ref": "#/components/schemas/V3Meta" }
+                },
+                "required": ["data", "pagination", "meta"]
+            },
+            "V3EquitySnapshotsListResponse": {
+                "type": "object",
+                "title": "V3EquitySnapshotsListResponse",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/V3EquitySnapshot" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/V3Pagination" },
+                    "meta": { "$ref": "#/components/schemas/V3Meta" }
+                },
+                "required": ["data", "pagination", "meta"]
+            },
+            "V3EquitySnapshotAtResponse": {
+                "type": "object",
+                "title": "V3EquitySnapshotAtResponse",
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "market": { "$ref": "#/components/schemas/V3EquityMarket" },
+                            "snapshot": { "$ref": "#/components/schemas/V3EquitySnapshot" }
+                        },
+                        "required": ["market", "snapshot"]
+                    },
+                    "meta": { "$ref": "#/components/schemas/V3Meta" }
+                },
+                "required": ["data", "meta"]
+            },
+            "V3EquityPriceResponse": {
+                "type": "object",
+                "title": "V3EquityPriceResponse",
+                "properties": {
+                    "data": { "$ref": "#/components/schemas/V3EquityPrice" },
+                    "meta": { "$ref": "#/components/schemas/V3Meta" }
+                },
+                "required": ["data", "meta"]
+            },
+            "V3EquityPricesListResponse": {
+                "type": "object",
+                "title": "V3EquityPricesListResponse",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/V3EquityPrice" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/V3Pagination" },
+                    "meta": { "$ref": "#/components/schemas/V3Meta" }
+                },
+                "required": ["data", "pagination", "meta"]
             }
         }
     },
@@ -4587,6 +5473,9 @@
         },
         {
             "name": "v3 - Binance Futures"
+        },
+        {
+            "name": "v3 - Equity"
         },
         {
             "name": "v3 - Utility"
@@ -4630,6 +5519,7 @@
                 "v3 - Markets",
                 "v3 - Binance Spot",
                 "v3 - Binance Futures",
+                "v3 - Equity",
                 "v3 - Utility"
             ]
         },

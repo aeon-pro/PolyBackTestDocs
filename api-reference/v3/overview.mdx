@@ -15,6 +15,7 @@ API v3 is a clean rewrite of the v2 surface area. Same data, same auth, new ergo
 | **Response shape** | Endpoint-specific (`{ markets: [...] }`, `{ snapshots: [...] }`) | Uniform `{ data, pagination?, meta }` envelope |
 | **Errors** | `{ "error": "string" }` | `{ "error": { "code", "message", "details" }, "meta" }` |
 | **Batch** | - | `POST /v3/batch` (up to 10 GETs) |
+| **Equity** | - | `/v3/equity/{symbol}/...` namespace for SPX/SPY/WTI/XAUUSD daily Up/Down markets |
 
 ## Base URLs
 
@@ -98,6 +99,15 @@ Same as v2 - pass your key as `X-API-Key` or `Authorization: Bearer …`.
 ```bash
 curl 'https://api.polybacktest.com/v3/btc/markets' -H "X-API-Key: $POLY_KEY"
 ```
+
+## Two namespaces
+
+v3 routes split into two coin-shaped namespaces:
+
+- **Crypto** — `/v3/{coin}/...` where `{coin}` is `btc`, `eth`, or `sol`. Polymarket Up/Down markets and Binance spot/futures.
+- **Equity** — `/v3/equity/{symbol}/...` where `{symbol}` is `spx`, `spx-open`, `spy`, `wti`, or `xauusd`. Daily Up/Down markets on TradFi underlyings, plus raw underlying-price ticks.
+
+Both namespaces share the same envelope, cursor pagination, error codes, and authentication. The equity namespace adds a `/prices` family of endpoints (`/prices`, `/prices/latest`, `/prices/at/{timestamp}`) for the underlying-price feed.
 
 ## Migration from v2
 
