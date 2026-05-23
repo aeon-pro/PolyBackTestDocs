@@ -55,6 +55,40 @@ v3 error responses include a stable `error.code` so you can branch on burst vs. 
 }
 ```
 
+## Historical Data Limits
+
+Historical access is separate from request rate limits. PolyBackTest stores up to 60 days of Polymarket crypto and Binance data, but each API key can only query the history window included in its plan. Equity markets are Pro-only and always use a fixed 31-day history window.
+
+| Plan / Add-on | Historical Data Window |
+| :--- | :--- |
+| **Free** | 31 days |
+| **Pro** | 31 days by default |
+| **Pro + 60-day history** | 60 days |
+| **90-day history** | Reserved for a future add-on |
+| **Equity markets** | 31 days fixed |
+| **Enterprise** | Contract-specific for Polymarket crypto/Binance; equity fixed at 31 days |
+
+When `start_time` is omitted on list endpoints, the API automatically clamps the query to the oldest timestamp your plan can access. When you provide an explicit `start_time` or point-in-time timestamp before your allowed window, v3 endpoints return `403 HISTORY_LIMIT_EXCEEDED`.
+
+```json
+{
+  "error": {
+    "code": "HISTORY_LIMIT_EXCEEDED",
+    "message": "Your plan only allows 31 days of history.",
+    "details": {
+      "field": "start_time",
+      "max_history_days": 31,
+      "oldest_allowed": "2026-04-22T12:00:00+00:00"
+    }
+  },
+  "meta": { "request_id": "req_...", "timestamp": "2026-05-23T12:00:00Z" }
+}
+```
+
+<Info>
+The 31/60-day history entitlement is enforced on Polymarket crypto market/snapshot endpoints and Binance spot/futures snapshot and trade endpoints. Equity market endpoints remain fixed at 31 days even when the key has the 60-day history add-on.
+</Info>
+
 ## Coin & Symbol Access by Plan
 
 ETH and SOL data is available to **Pro** and **Enterprise** users. Free-plan users can only query BTC. Attempting `/v3/eth/...` or `/v3/sol/...` on a free plan returns `402`:
@@ -74,7 +108,7 @@ ETH and SOL data is available to **Pro** and **Enterprise** users. Free-plan use
 
 ## Plan-Based Market Limits
 
-Access to market data depends on your plan. Free-plan users can access a limited window of the **most recent** BTC markets for each timeframe. Pro users have **unlimited** access.
+Access to market data depends on your plan. Free-plan users can access a limited window of the **most recent** BTC markets for each timeframe. Pro users can access all included markets within their purchased historical-data window.
 
 ### Free Plan Limits
 
@@ -90,7 +124,7 @@ Access to market data depends on your plan. Free-plan users can access a limited
 
 | Symbol | Free | Pro / Enterprise |
 | :--- | :--- | :--- |
-| `spx`, `spx-open`, `spy`, `wti`, `xauusd` | No access (`402`) | Unlimited markets, snapshots, and underlying-price ticks |
+| `spx`, `spx-open`, `spy`, `wti`, `xauusd` | No access (`403`) | Unlimited markets, snapshots, and underlying-price ticks inside the fixed 31-day history window |
 
 <Info>
   **"Latest"** means the most recently created markets, sorted by start time. As new markets are created, older ones rotate out of the free-plan window.
@@ -98,9 +132,9 @@ Access to market data depends on your plan. Free-plan users can access a limited
 
 ### What Does This Mean?
 
-- **List Markets (`GET /v3/{coin}/markets`)** - free users only see markets within their allowed window. Results past the window are filtered out.
-- **Get Market by ID/Slug** - accessing a market outside your window returns a `402` with `PLAN_UPGRADE_REQUIRED`.
-- **Snapshots** - free users can access all snapshots for any market **within** their window. Accessing snapshots for a market outside the window returns a `402`.
+- **List Markets (`GET /v3/{coin}/markets`)** - free users only see markets within their market-count and history windows. Results outside the allowed window are filtered out.
+- **Get Market by ID/Slug** - accessing a market outside the free-plan market window returns `402 PLAN_UPGRADE_REQUIRED`; a market older than the applicable history window returns `403 HISTORY_LIMIT_EXCEEDED`.
+- **Snapshots** - users can access snapshots for markets within their plan window. A market outside the free-plan market window returns `402`; an explicit timestamp older than the history entitlement returns `403 HISTORY_LIMIT_EXCEEDED`.
 
 ### Check Your Limits
 
@@ -114,7 +148,7 @@ When your request needs a higher plan, v3 returns `402`:
 {
   "error": {
     "code": "PLAN_UPGRADE_REQUIRED",
-    "message": "Free plan access exhausted for this filter. Upgrade for unlimited access.",
+    "message": "Free plan access exhausted for this filter. Upgrade for higher market limits.",
     "details": {
       "current_plan": "free",
       "required_plan": "pro",

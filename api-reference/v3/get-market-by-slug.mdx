@@ -7,4 +7,6 @@ openapi: 'GET /v3/{coin}/markets/by-slug/{slug}'
 
 Same as Get Market, but keyed by URL-friendly slug.
 
+<Info>Markets older than your plan's history window return `403 HISTORY_LIMIT_EXCEEDED`.</Info>
+
 <Tip>Slugs are stable per market; prefer them for any external link you control.</Tip>

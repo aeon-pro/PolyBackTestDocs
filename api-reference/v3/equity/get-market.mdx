@@ -29,6 +29,6 @@ curl 'https://api.polybacktest.com/v3/equity/spx/markets/1054321' \
 }
 ```
 
-<Info>404s surface as `MARKET_NOT_FOUND` in the error envelope. Free-plan keys hitting an equity symbol receive `402 PLAN_UPGRADE_REQUIRED`.</Info>
+<Info>404s surface as `MARKET_NOT_FOUND` in the error envelope. Free-plan keys hitting an equity symbol receive `403 COIN_NOT_IN_PLAN` at the gateway or `403 SYMBOL_NOT_IN_PLAN` directly. Markets older than the fixed 31-day equity history window return `403 HISTORY_LIMIT_EXCEEDED`.</Info>
 
 <Tip>If you only have the URL slug (e.g. from a Polymarket page), use [Get Equity Market by Slug](/api-reference/v3/equity/get-market-by-slug) instead.</Tip>

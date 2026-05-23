@@ -3382,7 +3382,7 @@
                         }
                     },
                     "403": {
-                        "description": "Symbol not in the caller's plan",
+                        "description": "Symbol not in the caller's plan or fixed 31-day equity history limit exceeded",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3468,6 +3468,16 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Symbol not in the caller's plan or fixed 31-day equity history limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
                     "404": {
                         "description": "Market not found",
                         "content": {
@@ -3526,6 +3536,16 @@
                     },
                     "402": {
                         "description": "Plan upgrade required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Symbol not in the caller's plan or fixed 31-day equity history limit exceeded",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3665,6 +3685,16 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Symbol not in the caller's plan or fixed 31-day equity history limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
+                    },
                     "404": {
                         "description": "Market not found",
                         "content": {
@@ -3727,6 +3757,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/V3EquitySnapshotAtResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Symbol not in the caller's plan or fixed 31-day equity history limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
                                 }
                             }
                         }
@@ -3824,6 +3864,16 @@
                                 }
                             }
                         }
+                    },
+                    "403": {
+                        "description": "Symbol not in the caller's plan or fixed 31-day equity history limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3859,6 +3909,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/V3EquityPriceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Symbol not in the caller's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
                                 }
                             }
                         }
@@ -3916,6 +3976,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/V3EquityPriceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Symbol not in the caller's plan or fixed 31-day equity history limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V3ErrorResponse"
                                 }
                             }
                         }
@@ -4655,7 +4725,7 @@
                 "properties": {
                     "code": {
                         "type": "string",
-                        "description": "Machine-readable code (e.g. RATE_LIMIT_BURST, COIN_NOT_IN_PLAN)"
+                        "description": "Machine-readable code (e.g. RATE_LIMIT_BURST, COIN_NOT_IN_PLAN, HISTORY_LIMIT_EXCEEDED)"
                     },
                     "message": {
                         "type": "string"

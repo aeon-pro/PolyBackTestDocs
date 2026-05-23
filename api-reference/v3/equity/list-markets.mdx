@@ -58,7 +58,10 @@ Pass `pagination.next_cursor` from one response as `?cursor=` on the next reques
 - `?resolved=true|false` — only resolved or only open markets.
 - `?start_time=` / `?end_time=` — bound the window in `start_time` (ms epoch or ISO-8601).
 
+<Info>Equity market history is fixed at 31 days. Omitted `start_time` values are clamped to that window; explicit older timestamps return `403 HISTORY_LIMIT_EXCEEDED`.</Info>
+
 ## Plan access
 
-- **Free** — equity data is **Pro-only**. Free keys receive `402 PLAN_UPGRADE_REQUIRED` from the worker, or `403 COIN_NOT_IN_PLAN` (with `details.symbol`) at the gateway.
-- **Pro / Enterprise** — unlimited history.
+- **Free** — equity data is **Pro-only**. Free keys receive `403 COIN_NOT_IN_PLAN` at the gateway, or `403 SYMBOL_NOT_IN_PLAN` if they reach the equity worker directly.
+- **Pro** — all included markets inside the fixed 31-day equity history window.
+- **Enterprise** — all included markets inside the fixed 31-day equity history window.

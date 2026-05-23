@@ -82,8 +82,11 @@ curl 'https://api.polybacktest.com/v3/equity/spy/markets/2132197/snapshots?fill=
 
 <Warning>Requesting `include_orderbook=true` at high `limit` returns much larger payloads. Keep `limit` modest or paginate in smaller pages.</Warning>
 
+<Info>Equity snapshot history is fixed at 31 days. Omitted `start_time` values are clamped to that window; explicit older timestamps return `403 HISTORY_LIMIT_EXCEEDED`.</Info>
+
 ## Errors
 
 - `404 MARKET_NOT_FOUND` — unknown `{market_id}` for this symbol.
-- `402 PLAN_UPGRADE_REQUIRED` — Free key against a Pro-only equity symbol.
+- `403 COIN_NOT_IN_PLAN` / `SYMBOL_NOT_IN_PLAN` — Free key against a Pro-only equity symbol.
+- `403 HISTORY_LIMIT_EXCEEDED` — explicit timestamp older than the fixed 31-day equity history window.
 - `400 INVALID_CURSOR` / `INVALID_TIMESTAMP` — malformed cursor, `start_time` / `end_time`, or `fill` value.

@@ -6,7 +6,11 @@ icon: 'database'
 
 ## Overview
 
-PolyBackTest maintains high-frequency data across two primary data sources - **Polymarket prediction markets** and **Binance cryptocurrency feeds**. All data is retained for **31 days** with automatic purging.
+PolyBackTest maintains high-frequency data across two primary data sources - **Polymarket prediction markets** and **Binance cryptocurrency feeds**. The platform stores up to **60 days** of historical crypto/Binance data with automatic purging. API access to that stored history is plan-based: the default window is **31 days**, and Pro users can purchase a **60-day** historical-data add-on. Equity market access stays fixed at **31 days**.
+
+<Info>
+The 90-day option is reserved for a future plan add-on and is not currently available for purchase.
+</Info>
 
 <Info>
 v3 endpoints take the coin as a path segment (`/v3/{coin}/...`). Supported coins: `btc`, `eth`, `sol`. As new assets are added, the same data retention policies apply.
@@ -18,7 +22,9 @@ Historical prediction market data for crypto up/down markets (BTC, ETH, SOL).
 
 | Metric | Value |
 | :--- | :--- |
-| **Retention Period** | 31 days |
+| **Stored Retention Period** | 60 days |
+| **Default API History Window** | 31 days |
+| **Extended API History Window** | 60 days (Pro add-on) |
 | **Markets Tracked** | 5,000+ |
 | **Total Snapshots** | 60,000,000+ |
 | **Snapshot Frequency** | 8 Snaphots per second per market |
@@ -47,7 +53,9 @@ Real-time orderbook snapshots and aggregated trade data from Binance.
 
 | Metric | Value |
 | :--- | :--- |
-| **Retention Period** | 31 days |
+| **Stored Retention Period** | 60 days |
+| **Default API History Window** | 31 days |
+| **Extended API History Window** | 60 days (Pro add-on) |
 | **Orderbook Snapshot Frequency** | ~10 snapshots per second |
 | **Trade Aggregation** | 1-second OHLCV candles |
 | **Markets** | Spot & Futures |
@@ -59,7 +67,7 @@ Real-time orderbook snapshots and aggregated trade data from Binance.
 Each snapshot contains the full 20-level orderbook depth (bids + asks) and the current price, captured approximately **10 times per second** from the Binance WebSocket feed.
 
 ```
-~10 snapshots/sec × 86,400 sec/day × 31 days = ~26.7 million snapshots per asset
+~10 snapshots/sec × 86,400 sec/day × 60 days = ~51.8 million snapshots per asset
 ```
 
 ### Aggregated Trades
@@ -70,7 +78,7 @@ Trade data is aggregated into **1-second candles** containing:
 - **Trade count**: Number of trades in the interval
 
 ```
-~86,400 trade records/day × 31 days = ~2.6 million trade records per asset
+~86,400 trade records/day × 60 days = ~5.2 million trade records per asset
 ```
 
 ---

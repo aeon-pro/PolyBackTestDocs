@@ -24,17 +24,21 @@ The API accepts timestamps in two formats:
 | `start_time` | string \| integer | Return records **after** this timestamp. |
 | `end_time` | string \| integer | Return records **before** this timestamp. (Defaults to now on Binance endpoints if omitted.) |
 
-**Example:** Fetching snapshots for a specific BTC market in January 2026
+<Info>
+History is plan-limited. If you omit `start_time`, Polymarket crypto and Binance list endpoints start at the oldest timestamp your plan can access (31 days by default, or 60 days with the extended-history Pro add-on). Equity endpoints always use a fixed 31-day window. If you send a `start_time` or point-in-time timestamp older than the applicable window, v3 returns `403 HISTORY_LIMIT_EXCEEDED`.
+</Info>
+
+**Example:** Fetching snapshots for a specific BTC market inside the default 31-day window
 
 ```bash
-curl "https://api.polybacktest.com/v3/btc/markets/1051520/snapshots?start_time=2026-01-01T00:00:00Z&end_time=2026-01-31T23:59:59Z" \
+curl "https://api.polybacktest.com/v3/btc/markets/1051520/snapshots?start_time=2026-05-01T00:00:00Z&end_time=2026-05-01T23:59:59Z" \
   -H "X-API-Key: $POLY_KEY"
 ```
 
 **Example:** Fetching the last hour of ETH spot trades using epoch timestamps
 
 ```bash
-curl "https://api.polybacktest.com/v3/eth/spot/trades?start_time=1708992000000&end_time=1708995600000" \
+curl "https://api.polybacktest.com/v3/eth/spot/trades?start_time=1779530400000&end_time=1779534000000" \
   -H "X-API-Key: $POLY_KEY"
 ```
 

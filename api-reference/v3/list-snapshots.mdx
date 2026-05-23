@@ -15,4 +15,6 @@ Each snapshot captures:
 
 Snapshots are ordered **ascending** by time. Pass `pagination.next_cursor` forward and stop on `has_more === false`. The default `limit` is 100, max 1000.
 
+<Info>If `start_time` is omitted, the API starts at the oldest timestamp your plan can access. Explicit timestamps older than your window return `403 HISTORY_LIMIT_EXCEEDED`.</Info>
+
 <Warning>Requesting `include_orderbook=true` at high `limit` returns much larger payloads. Keep `limit` modest or paginate in smaller pages.</Warning>

@@ -26,6 +26,8 @@ The single snapshot **closest to** `{timestamp}` (millisecond epoch or ISO-8601)
 
 Returns `404 SNAPSHOT_NOT_FOUND` if no snapshot lies within **2 seconds** of the requested time. The window is intentionally tight — snapshots are written every second during active hours, so a 2-second miss usually means the market wasn't yet collecting (pre-open) or had already settled.
 
+<Info>Equity snapshot history is fixed at 31 days. A `{timestamp}` older than that returns `403 HISTORY_LIMIT_EXCEEDED`.</Info>
+
 ## Example
 
 ```bash

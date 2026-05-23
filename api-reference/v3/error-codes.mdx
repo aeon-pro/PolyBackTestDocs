@@ -35,7 +35,9 @@ Branch on `error.code`, not on `error.message` (messages may evolve).
 | `COIN_NOT_IN_PLAN` | Your plan does not grant access to this coin (e.g. ETH on free). Also returned for equity symbols (SPX, SPY, etc.) when used on a Free plan. |
 | `SYMBOL_NOT_IN_PLAN` | Returned by the equity worker when a Free key reaches it directly (the gateway usually short-circuits with `COIN_NOT_IN_PLAN` first). |
 | `ENDPOINT_NOT_IN_PLAN` | This data type is blocked for your plan (e.g. spot trades on free). |
-| `HISTORY_LIMIT_EXCEEDED` | The requested time range exceeds your plan's history window. |
+| `HISTORY_LIMIT_EXCEEDED` | The requested time range exceeds your history window (31 days by default, 60 days with the extended-history add-on for Polymarket crypto/Binance; equity is fixed at 31 days). |
+
+`HISTORY_LIMIT_EXCEEDED` includes `details.max_history_days` and, where applicable, `details.oldest_allowed`. Omitted `start_time` values are clamped automatically; this error is returned when you explicitly request an older timestamp.
 
 ## Rate limiting (429)
 

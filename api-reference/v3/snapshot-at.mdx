@@ -9,4 +9,6 @@ The closest snapshot to `{timestamp}` - millisecond epoch or ISO-8601.
 
 If no snapshot is within 2 seconds of the requested time, the response is 404 with `error.code = SNAPSHOT_NOT_FOUND`.
 
+If `{timestamp}` is older than your plan's history window, the response is `403` with `error.code = HISTORY_LIMIT_EXCEEDED`.
+
 <Tip>Use this to align backtest decisions to a specific wall-clock moment without scanning a whole snapshot window.</Tip>

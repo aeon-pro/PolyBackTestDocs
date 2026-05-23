@@ -8,6 +8,7 @@ openapi: 'GET /v3/equity/{symbol}/prices/at/{timestamp}'
 The closest underlying price tick to `{timestamp}` (millisecond epoch or ISO-8601). Returns `404 PRICE_NOT_FOUND` if no tick is within **60 seconds** of the requested time.
 
 <Warning>Always returns `404` for `spx` and `spx-open` — Polymarket does not publish an SPX index tick feed.</Warning>
+<Info>Equity price history is fixed at 31 days. A `{timestamp}` older than that returns `403 HISTORY_LIMIT_EXCEEDED`.</Info>
 
 ## Example
 

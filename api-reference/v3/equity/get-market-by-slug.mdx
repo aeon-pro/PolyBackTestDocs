@@ -16,4 +16,4 @@ curl 'https://api.polybacktest.com/v3/equity/spx/markets/by-slug/spx-up-or-down-
 
 <Tip>Slugs are stable per market — prefer them for any external link you control. Internally, prefer `market_id` for joins.</Tip>
 
-<Info>404 → `MARKET_NOT_FOUND`. Plan-gating behaves the same as the by-ID variant.</Info>
+<Info>404 → `MARKET_NOT_FOUND`. Plan-gating behaves the same as the by-ID variant, and markets older than the fixed 31-day equity history window return `403 HISTORY_LIMIT_EXCEEDED`.</Info>

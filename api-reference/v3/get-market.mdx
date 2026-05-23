@@ -14,4 +14,4 @@ A single market resolved by ID, under the v3 envelope:
 }
 ```
 
-<Info>404s surface as `MARKET_NOT_FOUND` in the error envelope.</Info>
+<Info>404s surface as `MARKET_NOT_FOUND` in the error envelope. Markets older than your plan's history window return `403 HISTORY_LIMIT_EXCEEDED`.</Info>
