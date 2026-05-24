@@ -66,7 +66,7 @@ Historical access is separate from request rate limits. PolyBackTest stores up t
 | **Pro + 60-day history** | 60 days |
 | **90-day history** | Reserved for a future add-on |
 | **Equity markets** | 31 days fixed |
-| **Enterprise** | Contract-specific for Polymarket crypto/Binance; equity fixed at 31 days |
+| **Dedicated / Enterprise** | 60 days for Polymarket crypto and Binance; equity fixed at 31 days |
 
 When `start_time` is omitted on list endpoints, the API automatically clamps the query to the oldest timestamp your plan can access. When you provide an explicit `start_time` or point-in-time timestamp before your allowed window, v3 endpoints return `403 HISTORY_LIMIT_EXCEEDED`.
 
@@ -86,7 +86,7 @@ When `start_time` is omitted on list endpoints, the API automatically clamps the
 ```
 
 <Info>
-The 31/60-day history entitlement is enforced on Polymarket crypto market/snapshot endpoints and Binance spot/futures snapshot and trade endpoints. Equity market endpoints remain fixed at 31 days even when the key has the 60-day history add-on.
+The 31/60-day history entitlement is enforced on Polymarket crypto market/snapshot endpoints and Binance spot/futures snapshot and trade endpoints. Dedicated/Enterprise plans always receive the 60-day crypto/Binance window. Equity market endpoints remain fixed at 31 days even when the key has the 60-day history add-on or a Dedicated/Enterprise plan.
 </Info>
 
 ## Coin & Symbol Access by Plan

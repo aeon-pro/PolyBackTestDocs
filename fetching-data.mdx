@@ -25,7 +25,7 @@ The API accepts timestamps in two formats:
 | `end_time` | string \| integer | Return records **before** this timestamp. (Defaults to now on Binance endpoints if omitted.) |
 
 <Info>
-History is plan-limited. If you omit `start_time`, Polymarket crypto and Binance list endpoints start at the oldest timestamp your plan can access (31 days by default, or 60 days with the extended-history Pro add-on). Equity endpoints always use a fixed 31-day window. If you send a `start_time` or point-in-time timestamp older than the applicable window, v3 returns `403 HISTORY_LIMIT_EXCEEDED`.
+History is plan-limited. If you omit `start_time`, Polymarket crypto and Binance list endpoints start at the oldest timestamp your plan can access (31 days by default, or 60 days with the extended-history Pro add-on or Dedicated/Enterprise plans). Equity endpoints always use a fixed 31-day window. If you send a `start_time` or point-in-time timestamp older than the applicable window, v3 returns `403 HISTORY_LIMIT_EXCEEDED`.
 </Info>
 
 **Example:** Fetching snapshots for a specific BTC market inside the default 31-day window
