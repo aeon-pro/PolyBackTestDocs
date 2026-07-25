@@ -1,0 +1,19 @@
+---
+title: 'List Markets'
+openapi: 'GET /v4/markets'
+---
+
+Returns markets for one coin, newest first.
+
+Use `market_type=5m|15m|1h|4h|24h` to narrow the list. `start_time` and `end_time` are optional epoch-millisecond bounds.
+
+```bash
+curl "https://api.polybacktest.com/v4/markets?coin=btc&market_type=5m&limit=50&offset=0" \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+Continue with the returned `next_offset` while `has_more` is true. Pass `include_total=false` when an exact total is unnecessary.
+
+<Info>
+Free-plan keys receive only the market window included in their plan. `warning` explains when a page reaches that window.
+</Info>

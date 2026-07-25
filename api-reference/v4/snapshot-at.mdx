@@ -1,0 +1,13 @@
+---
+title: 'Snapshot at Timestamp'
+openapi: 'GET /v4/markets/{market_id}/snapshot-at/{timestamp}'
+---
+
+Returns the closest snapshot within approximately two seconds of an epoch-millisecond timestamp.
+
+```bash
+curl "https://api.polybacktest.com/v4/markets/1051520/snapshot-at/1777593600123?coin=btc" \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+The response contains the parent `market` and a one-item `snapshots` array. If no nearby snapshot exists, the API returns `SNAPSHOT_NOT_FOUND`.

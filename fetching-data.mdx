@@ -1,149 +1,113 @@
 ---
 title: "Fetching Data & Pagination"
-description: "Time filters, cursor pagination, and how to drain a time range cleanly"
+description: "Millisecond time filters and simple limit/offset pagination in API v4"
 icon: "filter"
 ---
 
 <Note>
-  This guide uses the current **v3** API. v2 is still live through its sunset window but uses `limit`/`offset` pagination and a different response envelope - see [API v2 (deprecated)](/api-reference/endpoint/list-markets) if you need the legacy docs.
+This guide uses **API v4**, the recommended API for new integrations. Its request and response shape stays close to v2: `coin` is a query parameter, lists have named arrays, and pagination uses `limit` plus `offset`.
 </Note>
 
-## Time Filtering
+## Timestamps
 
-Most endpoints return time-series data - market snapshots, orderbooks, trades. Use `start_time` and `end_time` to focus a query on a specific window.
+Every v4 timestamp is a Unix epoch integer in **milliseconds**.
 
-The API accepts timestamps in two formats:
+```text
+2026-05-01T00:00:00Z  →  1777593600000
+```
 
-1. **Millisecond Epoch**: e.g., `1709006400000` (recommended for programmatic access)
-2. **ISO8601 String**: e.g., `2026-02-27T04:00:00Z` (useful for manual testing)
+This rule applies to:
 
-### Query Parameters
+- `start_time` and `end_time` query parameters
+- the `{timestamp}` path parameter
+- market fields such as `start_time`, `end_time`, and `resolved_at`
+- snapshot `time`
+- timestamps inside error details
 
-| Parameter | Type | Description |
-| :-- | :-- | :-- |
-| `start_time` | string \| integer | Return records **after** this timestamp. |
-| `end_time` | string \| integer | Return records **before** this timestamp. (Defaults to now on Binance endpoints if omitted.) |
+v4 does not accept or return ISO-8601 timestamp strings.
+
+```bash
+curl "https://api.polybacktest.com/v4/markets/1051520/snapshots?coin=btc&start_time=1777593600000&end_time=1777679999000" \
+  -H "X-API-Key: $POLY_KEY"
+```
 
 <Info>
-History is plan-limited. If you omit `start_time`, Polymarket crypto and Binance list endpoints start at the oldest timestamp your plan can access (31 days by default, or 60 days with the extended-history Pro add-on or Dedicated/Enterprise plans). Equity endpoints always use a fixed 31-day window. If you send a `start_time` or point-in-time timestamp older than the applicable window, v3 returns `403 HISTORY_LIMIT_EXCEEDED`.
+History is plan-limited. If `start_time` is omitted, the API starts at the oldest timestamp your plan can access: 31 days by default, or 60 days with the extended-history Pro add-on or a Dedicated/Enterprise plan.
 </Info>
-
-**Example:** Fetching snapshots for a specific BTC market inside the default 31-day window
-
-```bash
-curl "https://api.polybacktest.com/v3/btc/markets/1051520/snapshots?start_time=2026-05-01T00:00:00Z&end_time=2026-05-01T23:59:59Z" \
-  -H "X-API-Key: $POLY_KEY"
-```
-
-**Example:** Fetching the last hour of ETH spot trades using epoch timestamps
-
-```bash
-curl "https://api.polybacktest.com/v3/eth/spot/trades?start_time=1779530400000&end_time=1779534000000" \
-  -H "X-API-Key: $POLY_KEY"
-```
-
-<Tip>
-  The coin is now a path segment (`/v3/{coin}/...`), not a query parameter. Every v3 request picks a single coin at the URL level.
-</Tip>
-
----
 
 ## Pagination
 
-v3 uses **cursor pagination** (keyset / seek) instead of v2 `limit`/`offset`. Cursors stay O(1) at any depth, hit the same DB indexes, and remain stable under concurrent writes.
+v4 uses `limit` and `offset`.
 
 | Parameter | Default | Maximum | Description |
 | :-- | :-- | :-- | :-- |
-| `limit` | Varies | Varies | Number of results per page. |
-| `cursor` | - | - | Opaque cursor from the previous response's `pagination.next_cursor`. |
-| `include_count` | `false` | - | Set `true` to populate `pagination.total_count` (triggers a `COUNT(*)` - avoid unless needed). |
+| `limit` | 50 for markets, 100 for snapshots | 100 for markets, 1000 for snapshots | Maximum records returned on this page. |
+| `offset` | 0 | - | Number of matching records to skip. |
+| `include_total` | `true` | - | Set `false` to skip the exact total count. |
 
-### Maximum Limits
-
-Different endpoints cap the `limit` to protect backend performance:
-
-- **List Markets**: Max `100` markets per request.
-- **Snapshots & Binance Data**: Max `1000` records per request.
-
-### Response shape
-
-Every paginated response looks like this:
+List responses keep the v2-style named array and add a few explicit paging helpers:
 
 ```json
 {
-  "data": [ { "market_id": "1051520", "...": "..." } ],
-  "pagination": {
-    "next_cursor": "eyJzdCI6IjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwiaWQiOiIxMDUxNTIwIn0",
-    "has_more": true,
-    "limit": 1000,
-    "count": 1000
-  },
-  "meta": { "request_id": "req_a1b2c3d4e5f6", "timestamp": "2026-04-16T12:00:00Z" }
+  "snapshots": [
+    { "id": 551, "market_id": "1051520", "time": 1777593600123 }
+  ],
+  "total": 2480,
+  "limit": 100,
+  "offset": 0,
+  "count": 100,
+  "has_more": true,
+  "next_offset": 100
 }
 ```
 
-Stop paginating when `pagination.has_more === false`.
+When `include_total=false`, `total` is `null`; use `has_more` and `next_offset` to continue.
 
-### How to Paginate
-
-Take the `pagination.next_cursor` from one response and pass it back as `?cursor=` on the next request. No offset arithmetic, no risk of skipped or duplicated rows.
-
-**Example Python Pagination Loop:**
+### Python pagination loop
 
 ```python
 import requests
 
-market_id = "1051520"
-base_url = f"https://api.polybacktest.com/v3/btc/markets/{market_id}/snapshots"
+url = "https://api.polybacktest.com/v4/markets/1051520/snapshots"
 headers = {"X-API-Key": "YOUR_API_KEY"}
-
-limit = 1000
-cursor = None
+offset = 0
 all_snapshots = []
 
 while True:
-    params = {"limit": limit, "start_time": "2026-01-01T00:00:00Z"}
-    if cursor:
-        params["cursor"] = cursor
+    body = requests.get(
+        url,
+        headers=headers,
+        params={
+            "coin": "btc",
+            "limit": 1000,
+            "offset": offset,
+            "include_total": "false",
+        },
+        timeout=30,
+    ).json()
+    all_snapshots.extend(body["snapshots"])
 
-    body = requests.get(base_url, headers=headers, params=params).json()
-    all_snapshots.extend(body["data"])
-
-    if not body["pagination"]["has_more"]:
+    if not body["has_more"]:
         break
-    cursor = body["pagination"]["next_cursor"]
+    offset = body["next_offset"]
 
-print(f"Total snapshots fetched: {len(all_snapshots)}")
+print(f"Fetched {len(all_snapshots)} snapshots")
 ```
 
-<Warning>
-  The legacy v2 `?offset=N` parameter still works on v3 endpoints for back-compat, but is deprecated. Mixing `offset` and `cursor` is not supported - if both are provided, `cursor` wins.
-</Warning>
+## Best practices
 
----
+### Bound historical queries
 
-## Best Practices
+For backfills, send explicit `start_time` and `end_time` values and use the maximum practical `limit`. For live polling, move `start_time` forward using the last record's millisecond timestamp.
 
-### 1. Polling for Live Data vs. Backfilling
+### Request order books only when needed
 
-- **Backfilling History:** When pulling days or weeks of historical data, always provide explicit `start_time` / `end_time` bounds, use the maximum `limit`, and step through with the cursor.
-- **Polling for Live Data:** When continuously polling for the latest updates, omit `end_time` and use `limit=1`, or dynamically move `start_time` forward based on the timestamp of the last record you received.
+Snapshot endpoints default to `include_orderbook=false`. Set it to `true` only for liquidity or order-flow analysis because full books make responses substantially larger.
 
-### 2. Including Orderbooks Wisely
+### Skip totals when you do not display them
 
-For the Polymarket snapshot endpoint, orderbooks are excluded by default (`include_orderbook=false`) to keep responses small and fast.
+Exact counts add database work. Use `include_total=false` for streaming imports and infinite-scroll interfaces.
 
-- If you only need price histories (OHLC-style analysis), keep it `false`.
-- If you're backtesting liquidity or order-flow strategies, set `include_orderbook=true`, but expect significantly larger payloads. Drop `limit` to avoid timeouts.
+### Send individual requests
 
-### 3. Don't opt into `total_count` unless you need it
-
-`COUNT(*)` on large tables is expensive. v3 omits `total_count` by default. Only pass `?include_count=true` when you actually display a "page X of Y" - for infinite-scroll, cursor-based UIs, don't bother.
-
-### 4. Millisecond Epoch over ISO
-
-ISO8601 strings are human-readable and good for manual testing. For production systems, use millisecond epoch integers - no time-zone ambiguity and a faster parse on both ends.
-
-### 5. Batch where it helps
-
-If your page load fans out several independent GETs (e.g. latest BTC spot \+ latest ETH futures \+ BTC markets list), consider `POST /v3/batch` to collapse them into one round trip. Each sub-request still counts as one rate-limit hit. See the [Batch endpoint docs](/api-reference/v3/batch).
+API v4 intentionally has no batch endpoint. Each request has one resource, one status code, and one error body.

@@ -6,14 +6,14 @@ icon: 'database'
 
 ## Overview
 
-PolyBackTest maintains high-frequency data across two primary data sources - **Polymarket prediction markets** and **Binance cryptocurrency feeds**. The platform stores up to **60 days** of historical crypto/Binance data with automatic purging. API access to that stored history is plan-based: the default window is **31 days**, Pro users can purchase a **60-day** historical-data add-on, and Dedicated/Enterprise plans include the full **60-day** crypto/Binance window. Equity market access stays fixed at **31 days**.
+PolyBackTest maintains high-frequency **Polymarket prediction-market data** with Chainlink reference prices. The platform stores up to **60 days** of historical crypto-market data with automatic purging. API access to that stored history is plan-based: the default window is **31 days**, Pro users can purchase a **60-day** historical-data add-on, and Dedicated/Enterprise plans include the full **60-day** window.
 
 <Info>
 The 90-day option is reserved for a future plan add-on and is not currently available for purchase.
 </Info>
 
 <Info>
-v3 endpoints take the coin as a path segment (`/v3/{coin}/...`). Supported coins: `btc`, `eth`, `sol`. As new assets are added, the same data retention policies apply.
+v4 endpoints take the coin as a required query parameter (`?coin=btc`). Supported coins are `btc`, `eth`, and `sol`.
 </Info>
 
 ## Polymarket Up/Down Markets
@@ -34,51 +34,14 @@ Historical prediction market data for crypto up/down markets (BTC, ETH, SOL).
 ### Data Sources & Accuracy
 
 **Crypto Prices (BTC, ETH, SOL)**
-- **Standard Markets (1h, 4h, 24h)**: Sourced directly from **Binance**.
-- **5m & 15m Markets**: Tracked via **Chainlink** prices to ensure 100% alignment with Polymarket's resolution criteria.
+- **Every supported timeframe (5m, 15m, 1h, 4h, 24h)**: Tracked via **Chainlink** reference prices and stored without synthetic winner-price replacement.
 
 **Market Resolution**
-- For **5-minute** and **15-minute** markets, PolyBackTest aligns with **Polymarket**, which uses **Chainlink** as its oracle. Our data is fully consistent with settlement prices.
+- PolyBackTest aligns its reference-price history with the Chainlink inputs used by supported Polymarket markets.
 
 **Data Consistency**
 - **Orderbooks**: Captured directly from the market - fully consistent.
 - **Resolution Data**: Uses official resolution data - settlement outcomes are accurate.
-- **Price Accuracy**: Chainlink integration for short-term markets ensures high accuracy to the settlement source.
-
----
-
-## Binance Cryptocurrency Data
-
-Real-time orderbook snapshots and aggregated trade data from Binance.
-
-| Metric | Value |
-| :--- | :--- |
-| **Stored Retention Period** | 60 days |
-| **Default API History Window** | 31 days |
-| **Extended API History Window** | 60 days (Pro add-on or Dedicated/Enterprise) |
-| **Orderbook Snapshot Frequency** | ~10 snapshots per second |
-| **Trade Aggregation** | 1-second OHLCV candles |
-| **Markets** | Spot & Futures |
-| **Current Assets** | BTC, ETH, SOL |
-| **Data Captured** | Full orderbook depth, OHLCV, volume, trade count |
-
-### Orderbook Snapshots
-
-Each snapshot contains the full 20-level orderbook depth (bids + asks) and the current price, captured approximately **10 times per second** from the Binance WebSocket feed.
-
-```
-~10 snapshots/sec × 86,400 sec/day × 60 days = ~51.8 million snapshots per asset
-```
-
-### Aggregated Trades
-
-Trade data is aggregated into **1-second candles** containing:
-- **OHLCV**: Open, high, low, close, volume
-- **Buy/sell volume split**: Aggressive buy vs. sell volume
-- **Trade count**: Number of trades in the interval
-
-```
-~86,400 trade records/day × 60 days = ~5.2 million trade records per asset
-```
+- **Price Accuracy**: Chainlink integration keeps reference data aligned with the settlement source.
 
 ---

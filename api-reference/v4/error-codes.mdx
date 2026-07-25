@@ -1,0 +1,38 @@
+---
+title: 'Error Codes'
+description: 'Flat, machine-readable errors returned by API v4.'
+---
+
+Every v4 error has the same top-level fields:
+
+```json
+{
+  "error": "Your plan only allows 31 days of history.",
+  "code": "HISTORY_LIMIT_EXCEEDED",
+  "request_id": "req_a1b2c3d4e5f6",
+  "details": {
+    "field": "start_time",
+    "max_history_days": 31,
+    "oldest_allowed": 1775001600000
+  }
+}
+```
+
+Branch on `code`, not on the human-readable `error` message.
+
+| HTTP | Code | Meaning |
+|---:|---|---|
+| 400 | `INVALID_COIN` | `coin` is unsupported. |
+| 400 | `INVALID_PARAMETER` | A required parameter is missing or a path/query parameter is invalid. |
+| 400 | `INVALID_TIMESTAMP` | A timestamp is not a valid epoch-millisecond integer. |
+| 405 | `METHOD_NOT_ALLOWED` | v4 endpoints only support the documented GET method. |
+| 401 | `AUTH_MISSING`, `AUTH_INVALID`, `AUTH_EXPIRED` | Authentication failed. |
+| 402 | `PLAN_UPGRADE_REQUIRED` | The market or feature requires a higher plan. |
+| 403 | `COIN_NOT_IN_PLAN`, `ENDPOINT_NOT_IN_PLAN` | The key cannot access this coin or endpoint. |
+| 403 | `HISTORY_LIMIT_EXCEEDED` | The requested time is older than the key's history window. |
+| 404 | `MARKET_NOT_FOUND`, `SNAPSHOT_NOT_FOUND`, `ENDPOINT_NOT_FOUND` | The requested resource or route does not exist. |
+| 429 | `RATE_LIMIT_BURST`, `RATE_LIMIT_SUSTAINED` | Retry after the interval in the response headers/details. |
+| 502 | `UPSTREAM_UNAVAILABLE` | The API worker is temporarily unreachable. |
+| 503 | `DATABASE_UNAVAILABLE` | The data store is temporarily unavailable. |
+
+The response also includes the same value in `X-Request-Id`; include it in support requests.

@@ -1,0 +1,13 @@
+---
+title: 'Get Market'
+openapi: 'GET /v4/markets/{market_id}'
+---
+
+Returns one market by ID. All timestamp fields are epoch milliseconds.
+
+```bash
+curl "https://api.polybacktest.com/v4/markets/1051520?coin=btc" \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+A market outside the key's plan window returns `PLAN_UPGRADE_REQUIRED` or `HISTORY_LIMIT_EXCEEDED`.

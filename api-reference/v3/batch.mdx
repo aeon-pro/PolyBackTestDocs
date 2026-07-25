@@ -9,8 +9,8 @@ openapi: 'POST /v3/batch'
 {
   "requests": [
     { "id": "r1", "path": "/v3/btc/markets?type=5m&limit=10" },
-    { "id": "r2", "path": "/v3/btc/spot/latest" },
-    { "id": "r3", "path": "/v3/eth/futures/latest" }
+    { "id": "r2", "path": "/v3/eth/markets?type=15m&limit=5" },
+    { "id": "r3", "path": "/v3/sol/markets?type=5m&limit=5" }
   ]
 }
 ```

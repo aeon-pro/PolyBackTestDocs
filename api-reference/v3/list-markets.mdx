@@ -19,6 +19,6 @@ Pass `pagination.next_cursor` from one response as `?cursor=` on the next reques
 
 - **Free**: limited to the most recent N markets per coin × type, inside the default 31-day history window.
 - **Pro**: all included markets inside the purchased history window (31 days by default, 60 days with the extended-history add-on).
-- **Dedicated / Enterprise**: all included crypto/Binance markets inside the 60-day history window. Equity markets remain fixed at 31 days.
+- **Dedicated / Enterprise**: all included crypto markets inside the 60-day history window.
 
 If `start_time` is omitted, the API starts from the oldest timestamp your plan can access. An explicit `start_time` older than that returns `403 HISTORY_LIMIT_EXCEEDED`.

@@ -1,0 +1,83 @@
+---
+title: 'v4 Overview'
+description: 'A small Polymarket-only API with v2-style pagination and millisecond timestamps.'
+---
+
+API v4 is the recommended PolyBackTest API. It keeps the parts users found simplest in v2 while making paging and errors explicit.
+
+## Contract
+
+- Polymarket crypto Up/Down markets only
+- required `coin=btc|eth|sol` query parameter
+- `limit` and `offset` pagination
+- named arrays such as `markets` and `snapshots`
+- Unix epoch **milliseconds** for every timestamp, in both requests and responses
+- flat error objects with a stable code and request ID
+- no batch endpoint
+
+## Base URLs
+
+- `https://api.polybacktest.com` for standard API keys
+- `https://enterprise.polybacktest.com` for enterprise API keys
+
+## Authentication
+
+Send the key using either `X-API-Key` or `Authorization: Bearer …`.
+
+```bash
+curl "https://api.polybacktest.com/v4/markets?coin=btc&limit=50&offset=0" \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+## List response
+
+```json
+{
+  "markets": [],
+  "total": 240,
+  "limit": 50,
+  "offset": 0,
+  "count": 50,
+  "has_more": true,
+  "next_offset": 50,
+  "warning": null
+}
+```
+
+Set `include_total=false` to avoid an exact count. The response then contains `"total": null`; use `has_more` and `next_offset`.
+
+## Errors
+
+```json
+{
+  "error": "Invalid request parameters",
+  "code": "INVALID_PARAMETER",
+  "request_id": "req_a1b2c3d4e5f6",
+  "details": {
+    "errors": []
+  }
+}
+```
+
+The same request ID is returned in the `X-Request-Id` header.
+
+## Moving from v2
+
+For most clients, migration is a version change plus timestamp cleanup:
+
+1. Change `/v2/...` to `/v4/...`.
+2. Keep `coin`, `limit`, and `offset`.
+3. Send epoch milliseconds instead of ISO strings.
+4. Use `has_more` and `next_offset` instead of calculating the next page yourself.
+5. Update error parsing to read `code` and `request_id`.
+
+## Moving from v3
+
+Move `coin` from the path to the query string, replace cursors with offsets, and read the named resource array instead of `data`.
+
+```text
+/v3/btc/markets?limit=50
+→ /v4/markets?coin=btc&limit=50&offset=0
+```
+
+Batch calls must be expanded into individual v4 GET requests.

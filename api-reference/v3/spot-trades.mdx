@@ -1,8 +1,0 @@
----
-title: 'Spot - List Trades'
-openapi: 'GET /v3/{coin}/spot/trades'
----
-
-Cursor-paginated Binance spot trade aggregates for `{coin}USDT`. Each row is an OHLC + volume bucket keyed by timestamp.
-
-If `start_time` is omitted, the API starts at the oldest timestamp your plan can access. Explicit timestamps older than your history window return `403 HISTORY_LIMIT_EXCEEDED`.

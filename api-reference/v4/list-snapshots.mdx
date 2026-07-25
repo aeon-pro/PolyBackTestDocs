@@ -1,0 +1,15 @@
+---
+title: 'List Market Snapshots'
+openapi: 'GET /v4/markets/{market_id}/snapshots'
+---
+
+Returns snapshots in ascending time order, bundled with the parent market.
+
+```bash
+curl "https://api.polybacktest.com/v4/markets/1051520/snapshots?coin=btc&limit=1000&offset=0&include_orderbook=false" \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+`include_orderbook` defaults to `false`. `start_time`, `end_time`, and every returned `time` value are epoch milliseconds.
+
+Continue with `next_offset` while `has_more` is true. Set `include_total=false` to skip the exact count.

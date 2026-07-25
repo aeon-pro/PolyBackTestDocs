@@ -1,121 +1,39 @@
 ---
 title: 'v3 Overview'
-description: 'Coin-in-path URLs, cursor pagination, consistent envelopes, and a batch endpoint.'
+description: 'Legacy cursor-paginated Polymarket API for existing integrations.'
 ---
 
-API v3 is a clean rewrite of the v2 surface area. Same data, same auth, new ergonomics.
+API v3 remains available for existing Polymarket integrations. New integrations should use [API v4](/api-reference/v4/overview), which returns to the simpler v2-style URL, pagination, and response conventions.
 
-## What changed at a glance
+## Legacy v3 shape
 
-| | v2 | v3 |
+| | v3 | v4 |
 |---|---|---|
-| **Coin** | `?coin=btc` query param | `/v3/{coin}/...` path segment |
-| **Pagination** | `limit` + `offset` (`OFFSET N`) | `limit` + `cursor` (keyset/seek) |
-| **Total count** | Always in response | Opt-in via `?include_count=true` |
-| **Response shape** | Endpoint-specific (`{ markets: [...] }`, `{ snapshots: [...] }`) | Uniform `{ data, pagination?, meta }` envelope |
-| **Errors** | `{ "error": "string" }` | `{ "error": { "code", "message", "details" }, "meta" }` |
-| **Batch** | - | `POST /v3/batch` (up to 10 GETs) |
-| **Equity** | - | `/v3/equity/{symbol}/...` namespace for SPX/SPY/WTI/XAUUSD daily Up/Down markets |
-
-## Base URLs
-
-- **`https://api.polybacktest.com`** - everyone (free, pro, enterprise)
-- **`https://enterprise.polybacktest.com`** - exclusive endpoint for enterprise plan API keys (non-enterprise keys are rejected with `ENTERPRISE_ONLY`)
-
-Enterprise users can use either URL - routing is decided by the API key, not the hostname. The enterprise domain just gives organizations a distinct, premium base URL for their integrations.
-
-## Response envelope
-
-Every successful response follows one of two shapes.
-
-### Single resource
-
-```json
-{
-  "data": { "market_id": "1051520", "market_type": "5m", "...": "..." },
-  "meta": {
-    "request_id": "req_a1b2c3d4e5f6",
-    "timestamp": "2026-04-16T12:00:00Z"
-  }
-}
-```
-
-### Paginated list
-
-```json
-{
-  "data": [ { "market_id": "1051520", "...": "..." } ],
-  "pagination": {
-    "next_cursor": "eyJzdCI6IjIwMjYtMDQtMTVUMjM6NTU6MDBaIiwiaWQiOiIxMDUxNTIwIn0",
-    "has_more": true,
-    "limit": 50,
-    "count": 50
-  },
-  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
-}
-```
-
-`pagination.total_count` is **omitted by default**. To opt in (at the cost of a `COUNT(*)`), pass `?include_count=true`.
-
-### Error
-
-```json
-{
-  "error": {
-    "code": "RATE_LIMIT_BURST",
-    "message": "Burst limit exceeded. Max 10 requests per second.",
-    "details": { "retry_after": 1, "limit": 10, "window": "second" }
-  },
-  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
-}
-```
-
-The HTTP status is set per the error `code` (see [Error Codes](/api-reference/v3/error-codes)).
-
-## Cursor pagination
-
-Cursors are opaque base64url-encoded sort-key snapshots. To paginate forward, take the `pagination.next_cursor` from one response and pass it as `?cursor=` in the next request:
-
-```bash
-# Page 1
-curl 'https://api.polybacktest.com/v3/btc/markets?type=5m&limit=50' \
-  -H "X-API-Key: $POLY_KEY"
-
-# Page 2 - pass the cursor from page 1's pagination.next_cursor
-curl 'https://api.polybacktest.com/v3/btc/markets?type=5m&limit=50&cursor=eyJzdCI...' \
-  -H "X-API-Key: $POLY_KEY"
-```
-
-Stop paginating when `pagination.has_more === false`.
-
-<Note>
-Compared to v2's `OFFSET N`, cursor pagination stays O(1) at any depth and uses the same DB indexes. Old `?offset=N` is still accepted for back-compat but is marked deprecated.
-</Note>
+| **Coin** | `/v3/{coin}/...` path segment | required `?coin=` query parameter |
+| **Pagination** | `limit` + `cursor` | `limit` + `offset` |
+| **Response** | `{ data, pagination?, meta }` | named resources such as `{ markets: [...] }` |
+| **Timestamps** | millisecond epoch or ISO-8601 inputs | millisecond epoch integers everywhere |
+| **Errors** | nested `error` and `meta` objects | flat `{ error, code, request_id, details? }` |
 
 ## Authentication
 
-Same as v2 - pass your key as `X-API-Key` or `Authorization: Bearer …`.
+Pass your key as `X-API-Key` or `Authorization: Bearer …`.
 
 ```bash
-curl 'https://api.polybacktest.com/v3/btc/markets' -H "X-API-Key: $POLY_KEY"
+curl 'https://api.polybacktest.com/v3/btc/markets?limit=50' \
+  -H "X-API-Key: $POLY_KEY"
 ```
 
-## Two namespaces
+## Pagination
 
-v3 routes split into two coin-shaped namespaces:
+Pass `pagination.next_cursor` from one response as `?cursor=` on the next request. Stop when `pagination.has_more` is `false`.
 
-- **Crypto** — `/v3/{coin}/...` where `{coin}` is `btc`, `eth`, or `sol`. Polymarket Up/Down markets and Binance spot/futures.
-- **Equity** — `/v3/equity/{symbol}/...` where `{symbol}` is `spx`, `spx-open`, `spy`, `wti`, or `xauusd`. Daily Up/Down markets on TradFi underlyings, plus raw underlying-price ticks.
+## Moving to v4
 
-Both namespaces share the same envelope, cursor pagination, error codes, and authentication. The equity namespace adds a `/prices` family of endpoints (`/prices`, `/prices/latest`, `/prices/at/{timestamp}`) for the underlying-price feed.
+1. Change `/v3/btc/markets` to `/v4/markets?coin=btc`.
+2. Replace cursor handling with `offset=response.next_offset`.
+3. Read `markets` or `snapshots` instead of `data`.
+4. Send and expect epoch-millisecond timestamps only.
+5. Read errors from top-level `error`, `code`, and `request_id`.
 
-## Migration from v2
-
-The mechanical changes are usually:
-
-1. Move the `?coin=` query param into the path: `/v2/markets?coin=btc` → `/v3/btc/markets`.
-2. Replace `?offset=` with cursor pagination (or keep using `?offset=` while you migrate - it still works).
-3. Read your data from `response.data` instead of `response.markets` / `response.snapshots` / `response.trades`.
-4. If you depended on `total`, opt in via `?include_count=true` only where you actually need it.
-
-v2 will continue to serve traffic through its sunset window; responses include `Sunset` and `Deprecation` headers and a `Link` to this v3 documentation.
+v3 batch requests have no v4 equivalent; send the contained GET requests individually.

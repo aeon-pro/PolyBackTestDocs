@@ -31,33 +31,29 @@ When rate limited, a `Retry-After` header indicates how many seconds to wait bef
 
 ### 429 Too Many Requests
 
-v3 error responses include a stable `error.code` so you can branch on burst vs. sustained:
+v4 error responses include a stable top-level `code` so you can branch on burst vs. sustained:
 
 ```json
 {
-  "error": {
-    "code": "RATE_LIMIT_BURST",
-    "message": "Burst limit exceeded. Max 10 requests per second.",
-    "details": { "retry_after": 1, "limit": 10, "window": "second" }
-  },
-  "meta": { "request_id": "req_a1b2c3d4e5f6", "timestamp": "2026-04-16T12:00:00Z" }
+  "error": "Burst limit exceeded. Max 10 requests per second.",
+  "code": "RATE_LIMIT_BURST",
+  "request_id": "req_a1b2c3d4e5f6",
+  "details": { "retry_after": 1, "limit": 10, "window": "second" }
 }
 ```
 
 ```json
 {
-  "error": {
-    "code": "RATE_LIMIT_SUSTAINED",
-    "message": "Rate limit exceeded. Max 300 requests per minute.",
-    "details": { "retry_after": 47, "limit": 300, "window": "minute" }
-  },
-  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
+  "error": "Rate limit exceeded. Max 300 requests per minute.",
+  "code": "RATE_LIMIT_SUSTAINED",
+  "request_id": "req_a1b2c3d4e5f6",
+  "details": { "retry_after": 47, "limit": 300, "window": "minute" }
 }
 ```
 
 ## Historical Data Limits
 
-Historical access is separate from request rate limits. PolyBackTest stores up to 60 days of Polymarket crypto and Binance data, but each API key can only query the history window included in its plan. Equity markets are Pro-only and always use a fixed 31-day history window.
+Historical access is separate from request rate limits. PolyBackTest stores up to 60 days of Polymarket crypto data, but each API key can only query the history window included in its plan.
 
 | Plan / Add-on | Historical Data Window |
 | :--- | :--- |
@@ -65,46 +61,39 @@ Historical access is separate from request rate limits. PolyBackTest stores up t
 | **Pro** | 31 days by default |
 | **Pro + 60-day history** | 60 days |
 | **90-day history** | Reserved for a future add-on |
-| **Equity markets** | 31 days fixed |
-| **Dedicated / Enterprise** | 60 days for Polymarket crypto and Binance; equity fixed at 31 days |
+| **Dedicated / Enterprise** | 60 days |
 
-When `start_time` is omitted on list endpoints, the API automatically clamps the query to the oldest timestamp your plan can access. When you provide an explicit `start_time` or point-in-time timestamp before your allowed window, v3 endpoints return `403 HISTORY_LIMIT_EXCEEDED`.
+When `start_time` is omitted on list endpoints, the API automatically clamps the query to the oldest timestamp your plan can access. When you provide an explicit `start_time` or point-in-time timestamp before your allowed window, v4 endpoints return `403 HISTORY_LIMIT_EXCEEDED`.
 
 ```json
 {
-  "error": {
-    "code": "HISTORY_LIMIT_EXCEEDED",
-    "message": "Your plan only allows 31 days of history.",
-    "details": {
-      "field": "start_time",
-      "max_history_days": 31,
-      "oldest_allowed": "2026-04-22T12:00:00+00:00"
-    }
-  },
-  "meta": { "request_id": "req_...", "timestamp": "2026-05-23T12:00:00Z" }
+  "error": "Your plan only allows 31 days of history.",
+  "code": "HISTORY_LIMIT_EXCEEDED",
+  "request_id": "req_a1b2c3d4e5f6",
+  "details": {
+    "field": "start_time",
+    "max_history_days": 31,
+    "oldest_allowed": 1779441600000
+  }
 }
 ```
 
 <Info>
-The 31/60-day history entitlement is enforced on Polymarket crypto market/snapshot endpoints and Binance spot/futures snapshot and trade endpoints. Dedicated/Enterprise plans always receive the 60-day crypto/Binance window. Equity market endpoints remain fixed at 31 days even when the key has the 60-day history add-on or a Dedicated/Enterprise plan.
+The 31/60-day history entitlement is enforced on Polymarket market and snapshot endpoints. Dedicated/Enterprise plans receive the 60-day window.
 </Info>
 
-## Coin & Symbol Access by Plan
+## Coin Access by Plan
 
-ETH and SOL data is available to **Pro** and **Enterprise** users. Free-plan users can only query BTC. Attempting `/v3/eth/...` or `/v3/sol/...` on a free plan returns `402`:
+ETH and SOL data is available to **Pro** and **Enterprise** users. Free-plan users can only query BTC. Attempting `?coin=eth` or `?coin=sol` on a free plan returns an access error:
 
 ```json
 {
-  "error": {
-    "code": "COIN_NOT_IN_PLAN",
-    "message": "ETH data requires a Pro plan or enterprise access",
-    "details": { "coin": "eth" }
-  },
-  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
+  "error": "ETH data requires a Pro plan or enterprise access",
+  "code": "COIN_NOT_IN_PLAN",
+  "request_id": "req_a1b2c3d4e5f6",
+  "details": { "coin": "eth" }
 }
 ```
-
-**All equity symbols** (`spx`, `spx-open`, `spy`, `wti`, `xauusd`) are Pro-only. Free-plan calls to `/v3/equity/{symbol}/...` are rejected at the gateway with the same `COIN_NOT_IN_PLAN` shape (with `details.symbol` set instead of `details.coin`).
 
 ## Plan-Based Market Limits
 
@@ -120,19 +109,13 @@ Access to market data depends on your plan. Free-plan users can access a limited
 | **4h** | 24 | Unlimited (for accessible markets) |
 | **24h** | 5 | Unlimited (for accessible markets) |
 
-### Equity Symbols (Pro only)
-
-| Symbol | Free | Pro / Enterprise |
-| :--- | :--- | :--- |
-| `spx`, `spx-open`, `spy`, `wti`, `xauusd` | No access (`403`) | Unlimited markets, snapshots, and underlying-price ticks inside the fixed 31-day history window |
-
 <Info>
   **"Latest"** means the most recently created markets, sorted by start time. As new markets are created, older ones rotate out of the free-plan window.
 </Info>
 
 ### What Does This Mean?
 
-- **List Markets (`GET /v3/{coin}/markets`)** - free users only see markets within their market-count and history windows. Results outside the allowed window are filtered out.
+- **List Markets (`GET /v4/markets?coin=...`)** - free users only see markets within their market-count and history windows. Results outside the allowed window are filtered out.
 - **Get Market by ID/Slug** - accessing a market outside the free-plan market window returns `402 PLAN_UPGRADE_REQUIRED`; a market older than the applicable history window returns `403 HISTORY_LIMIT_EXCEEDED`.
 - **Snapshots** - users can access snapshots for markets within their plan window. A market outside the free-plan market window returns `402`; an explicit timestamp older than the history entitlement returns `403 HISTORY_LIMIT_EXCEEDED`.
 
@@ -142,23 +125,21 @@ Your plan, included markets, and (for enterprise) infrastructure routing are vis
 
 ### Handling Plan Errors
 
-When your request needs a higher plan, v3 returns `402`:
+When your request needs a higher plan, v4 returns `402`:
 
 ```json
 {
-  "error": {
-    "code": "PLAN_UPGRADE_REQUIRED",
-    "message": "Free plan access exhausted for this filter. Upgrade for higher market limits.",
-    "details": {
-      "current_plan": "free",
-      "required_plan": "pro",
-      "market_type": "5m"
-    }
-  },
-  "meta": { "request_id": "req_...", "timestamp": "2026-04-16T12:00:00Z" }
+  "error": "Free plan access exhausted for this filter. Upgrade for higher market limits.",
+  "code": "PLAN_UPGRADE_REQUIRED",
+  "request_id": "req_a1b2c3d4e5f6",
+  "details": {
+    "current_plan": "free",
+    "required_plan": "pro",
+    "market_type": "5m"
+  }
 }
 ```
 
 <Tip>
-  Branch on `error.code` (stable), not `error.message` (may change). Full list: [v3 Error Codes](/api-reference/v3/error-codes).
+  Branch on `code` (stable), not `error` (may change). Full list: [v4 Error Codes](/api-reference/v4/error-codes).
 </Tip>

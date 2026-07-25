@@ -70,8 +70,8 @@ const message = await client.messages.create({
   max_tokens: 4096,
   system:
     "You have access to the PolyBackTest Data API for querying " +
-    "real-time and historical prediction market data, cryptocurrency " +
-    "orderbooks, and aggregated trades. For complete endpoint " +
+    "real-time and historical Polymarket prediction-market data, " +
+    "Chainlink reference prices, and market orderbooks. For complete endpoint " +
     "documentation, authentication, parameter reference, response " +
     "schemas, and usage examples, refer to: " +
     "https://polybacktest.com/llms",
@@ -96,13 +96,13 @@ const message = await client.messages.create({
     Every endpoint, parameter, and response schema documented in a single markdown file optimized for LLM consumption.
   </Card>
   <Card title="Code Examples" icon="code">
-    Python examples for common patterns - backfilling snapshots, polling live prices, correlating prediction markets with spot data.
+    Python examples for common patterns such as backfilling snapshots and paging through recent markets.
   </Card>
   <Card title="Auth & Rate Limits" icon="key">
     Clear instructions on API key headers, plan tiers, rate limit handling, and coin access so the agent self-manages usage.
   </Card>
   <Card title="Pagination & Filtering" icon="filter">
-    Time-range filtering, cursor-based pagination, and orderbook inclusion flags - all documented for autonomous data retrieval.
+    Millisecond time filtering, limit/offset pagination, and orderbook inclusion flags - all documented for autonomous data retrieval.
   </Card>
 </CardGroup>
 
