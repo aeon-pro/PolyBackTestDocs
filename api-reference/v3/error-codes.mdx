@@ -34,9 +34,9 @@ Branch on `error.code`, not on `error.message` (messages may evolve).
 | `ENTERPRISE_ONLY` | A non-enterprise key was used on `enterprise.polybacktest.com`. |
 | `COIN_NOT_IN_PLAN` | Your plan does not grant access to this coin (e.g. ETH on free). |
 | `ENDPOINT_NOT_IN_PLAN` | This coin or market type is not included in your plan. |
-| `HISTORY_LIMIT_EXCEEDED` | The requested time range exceeds your history window (31 days by default, 60 days with the extended-history add-on or Dedicated/Enterprise plans). |
+| `HISTORY_LIMIT_EXCEEDED` | The requested time range exceeds the authenticated key's history window (31 days by default, 60/120 days with the corresponding Pro add-on, or up to 120 days on Dedicated/Enterprise). |
 
-`HISTORY_LIMIT_EXCEEDED` includes `details.max_history_days` and, where applicable, `details.oldest_allowed`. Omitted `start_time` values are clamped automatically; this error is returned when you explicitly request an older timestamp.
+`HISTORY_LIMIT_EXCEEDED` includes `details.max_history_days` and, where applicable, `details.oldest_allowed`. The value is resolved for the API key that made the request and can be 31, 60, or 120. Omitted `start_time` values are clamped automatically; this error is returned when you explicitly request an older timestamp.
 
 ## Rate limiting (429)
 

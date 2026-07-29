@@ -15,5 +15,14 @@ curl "https://api.polybacktest.com/v4/markets?coin=btc&market_type=5m&limit=50&o
 Continue with the returned `next_offset` while `has_more` is true. Pass `include_total=false` when an exact total is unnecessary.
 
 <Info>
-Free-plan keys receive only the market window included in their plan. `warning` explains when a page reaches that window.
+Results are constrained by the authenticated key's history entitlement: 31
+days by default, 60 or 120 days with the corresponding Pro add-on, and up to
+120 days for Dedicated/Enterprise keys. Free-plan keys also receive only the
+market-count window included in their plan; `warning` explains when a page
+reaches that count window.
 </Info>
+
+An explicit `start_time` older than the key's window returns
+`403 HISTORY_LIMIT_EXCEEDED`. If `start_time` is omitted, the API clamps the
+query automatically. Actual collected coverage may be shorter for newer
+markets or backfills still in progress.

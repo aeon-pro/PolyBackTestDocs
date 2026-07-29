@@ -32,7 +32,11 @@ curl "https://api.polybacktest.com/v4/markets/1051520/snapshots?coin=btc&start_t
 ```
 
 <Info>
-History is plan-limited. If `start_time` is omitted, the API starts at the oldest timestamp your plan can access: 31 days by default, or 60 days with the extended-history Pro add-on or a Dedicated/Enterprise plan.
+History is key- and plan-limited. If `start_time` is omitted, the API starts at
+the oldest timestamp the authenticated key can access: 31 days by default, 60
+or 120 days with the corresponding Pro history add-on, or up to 120 days on a
+Dedicated/Enterprise plan. Available collected history may be shorter than the
+plan window for newer markets or backfills still in progress.
 </Info>
 
 ## Pagination

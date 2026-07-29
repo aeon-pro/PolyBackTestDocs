@@ -20,6 +20,12 @@ Every v4 error has the same top-level fields:
 
 Branch on `code`, not on the human-readable `error` message.
 
+The example above is for a key with the default 31-day entitlement. For Pro
+keys with extended history and for Dedicated/Enterprise keys,
+`details.max_history_days` reflects the authenticated key's 31-, 60-, or
+120-day limit. A 120-day limit is still subject to the history that has
+actually been collected and backfilled for the requested market.
+
 | HTTP | Code | Meaning |
 |---:|---|---|
 | 400 | `INVALID_COIN` | `coin` is unsupported. |

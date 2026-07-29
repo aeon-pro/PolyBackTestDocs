@@ -6,11 +6,23 @@ icon: 'database'
 
 ## Overview
 
-PolyBackTest maintains high-frequency **Polymarket prediction-market data** with Chainlink reference prices. The platform stores up to **60 days** of historical crypto-market data with automatic purging. API access to that stored history is plan-based: the default window is **31 days**, Pro users can purchase a **60-day** historical-data add-on, and Dedicated/Enterprise plans include the full **60-day** window.
+PolyBackTest maintains high-frequency **Polymarket prediction-market data** with
+Chainlink reference prices. The platform stores up to **120 rolling days** of
+historical crypto-market data with automatic purging. API access to that stored
+history is plan-based: the default window is **31 days**, and Pro users can
+select a **60-day** or **120-day** historical-data add-on.
 
 <Info>
-The 90-day option is reserved for a future plan add-on and is not currently available for purchase.
+Dedicated/Enterprise plans include access to up to 120 days. The 90-day option
+is reserved for a future plan add-on and is not currently available for
+purchase.
 </Info>
+
+<Note>
+A 120-day entitlement sets the maximum query window for the key. It does not
+create data from before collection began. Until all backfills are verified, the
+oldest available timestamp may vary by coin, market type, or individual market.
+</Note>
 
 <Info>
 v4 endpoints take the coin as a required query parameter (`?coin=btc`). Supported coins are `btc`, `eth`, and `sol`.
@@ -22,9 +34,9 @@ Historical prediction market data for crypto up/down markets (BTC, ETH, SOL).
 
 | Metric | Value |
 | :--- | :--- |
-| **Stored Retention Period** | 60 days |
+| **Stored Retention Period** | Up to 120 rolling days |
 | **Default API History Window** | 31 days |
-| **Extended API History Window** | 60 days (Pro add-on or Dedicated/Enterprise) |
+| **Extended API History Windows** | 60 or 120 days (Pro add-on); up to 120 days (Dedicated/Enterprise) |
 | **Markets Tracked** | 5,000+ |
 | **Total Snapshots** | 60,000,000+ |
 | **Snapshot Frequency** | 8 Snaphots per second per market |

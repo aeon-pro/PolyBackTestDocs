@@ -46,6 +46,7 @@
                             {
                                 "group": "Utility",
                                 "pages": [
+                                    "api-reference/v4/plan-limits",
                                     "api-reference/v4/health"
                                 ]
                             }

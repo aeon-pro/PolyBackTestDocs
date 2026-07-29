@@ -9,3 +9,6 @@ Returns the same market object as the by-ID endpoint, selected using its Polymar
 curl "https://api.polybacktest.com/v4/markets/by-slug/bitcoin-up-or-down-may-1?coin=btc" \
   -H "X-API-Key: $POLY_KEY"
 ```
+
+A market older than the authenticated key's 31-, 60-, or 120-day history
+window returns `403 HISTORY_LIMIT_EXCEEDED`.

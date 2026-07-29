@@ -1,20 +1,20 @@
-import os
-import glob
+from pathlib import Path
 import re
 
-directory = "/home/aeon/Documents/Project PolyDataMine/PolyBackTest Website/PolyBackTestDocs/api-reference/endpoint"
-files = glob.glob(os.path.join(directory, "*.mdx"))
+directory = Path(__file__).resolve().parent / "api-reference" / "endpoint"
+files = directory.glob("*.mdx")
 
 warning = """
 <Warning>
-**ETH data collection started on 2026-03-02** Full 31-day historical coverage for Ethereum is not yet available.
+**History is plan-limited.** API keys can query 31, 60, or 120 days according
+to their active plan. The oldest available timestamp may be newer when
+collection began later or a backfill is still in progress.
 </Warning>
 """
 
 count = 0
 for filepath in files:
-    with open(filepath, "r") as f:
-        content = f.read()
+    content = filepath.read_text()
 
     # Check if the file contains the target coin options
     if "`btc`, `eth`" in content and "<Warning>" not in content:
@@ -25,9 +25,8 @@ for filepath in files:
             content,
         )
         if new_content != content:
-            with open(filepath, "w") as f:
-                f.write(new_content)
+            filepath.write_text(new_content)
             count += 1
-            print(f"Updated {os.path.basename(filepath)}")
+            print(f"Updated {filepath.name}")
 
 print(f"Total endpoints updated: {count}")

@@ -53,15 +53,25 @@ v4 error responses include a stable top-level `code` so you can branch on burst 
 
 ## Historical Data Limits
 
-Historical access is separate from request rate limits. PolyBackTest stores up to 60 days of Polymarket crypto data, but each API key can only query the history window included in its plan.
+Historical access is separate from request rate limits. PolyBackTest stores up to
+**120 rolling days** of Polymarket crypto data. Each API key can query only the
+history window attached to its account and active plan.
 
 | Plan / Add-on | Historical Data Window |
 | :--- | :--- |
 | **Free** | 31 days |
 | **Pro** | 31 days by default |
 | **Pro + 60-day history** | 60 days |
+| **Pro + 120-day history** | 120 days |
 | **90-day history** | Reserved for a future add-on |
-| **Dedicated / Enterprise** | 60 days |
+| **Dedicated / Enterprise** | 120 days |
+
+<Note>
+The plan window is an access limit, not a guarantee that every coin and market
+has a complete backfill for that entire period. The oldest available timestamp
+can be newer when collection for a market started later or a backfill is still
+in progress.
+</Note>
 
 When `start_time` is omitted on list endpoints, the API automatically clamps the query to the oldest timestamp your plan can access. When you provide an explicit `start_time` or point-in-time timestamp before your allowed window, v4 endpoints return `403 HISTORY_LIMIT_EXCEEDED`.
 
@@ -79,8 +89,41 @@ When `start_time` is omitted on list endpoints, the API automatically clamps the
 ```
 
 <Info>
-The 31/60-day history entitlement is enforced on Polymarket market and snapshot endpoints. Dedicated/Enterprise plans receive the 60-day window.
+The 31-, 60-, or 120-day entitlement is resolved for the authenticated API key
+and enforced on Polymarket market and snapshot endpoints. Dedicated/Enterprise
+keys receive the 120-day entitlement. Check the Billing page in the Dashboard
+to see the entitlement currently attached to your account.
 </Info>
+
+### Inspect a Key's Effective Limits
+
+Before choosing a backfill range, query the authenticated v4 plan-limits
+endpoint for the coin you intend to use:
+
+```bash
+curl "https://api.polybacktest.com/v4/billing/plan-limits?coin=btc" \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+```json
+{
+  "plan_id": "pro",
+  "coin": "btc",
+  "is_enterprise": false,
+  "max_history_days": 120,
+  "rate_limits": {
+    "max_per_second": 10,
+    "max_per_minute": 300
+  }
+}
+```
+
+`max_history_days` is the enforced window for that key and coin. Enterprise
+limits can be coin-specific, so pass the same `coin` you will use on the market
+request. The response also includes `X-Request-Id`.
+
+See [Get Effective Plan Limits](/api-reference/v4/plan-limits) for the complete
+contract.
 
 ## Coin Access by Plan
 

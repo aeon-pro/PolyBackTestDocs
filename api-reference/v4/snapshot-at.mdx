@@ -11,3 +11,6 @@ curl "https://api.polybacktest.com/v4/markets/1051520/snapshot-at/1777593600123?
 ```
 
 The response contains the parent `market` and a one-item `snapshots` array. If no nearby snapshot exists, the API returns `SNAPSHOT_NOT_FOUND`.
+
+If `{timestamp}` is older than the authenticated key's 31-, 60-, or 120-day
+history window, the API returns `403 HISTORY_LIMIT_EXCEEDED`.

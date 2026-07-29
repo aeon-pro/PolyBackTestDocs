@@ -1922,6 +1922,102 @@
                 }
             }
         },
+        "/v4/billing/plan-limits": {
+            "get": {
+                "tags": [
+                    "v4 - Utility"
+                ],
+                "summary": "Get effective plan limits",
+                "description": "Returns the authenticated API key's effective history and request-rate limits for a coin. The coin is required because Enterprise overrides can be coin-specific.",
+                "operationId": "v4_get_plan_limits",
+                "parameters": [
+                    {
+                        "name": "coin",
+                        "in": "query",
+                        "required": true,
+                        "description": "Coin whose effective entitlement should be resolved.",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "btc",
+                                "eth",
+                                "sol"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Effective limits for the authenticated key and coin",
+                        "headers": {
+                            "X-Request-Id": {
+                                "description": "Request identifier to include in support requests",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V4PlanLimitsResponse"
+                                },
+                                "example": {
+                                    "plan_id": "pro",
+                                    "coin": "btc",
+                                    "is_enterprise": false,
+                                    "max_history_days": 120,
+                                    "rate_limits": {
+                                        "max_per_second": 10,
+                                        "max_per_minute": 300
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or invalid coin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V4ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid API key",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V4ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The selected coin is not included in the authenticated key's plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V4ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/V4ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v4/markets": {
             "get": {
                 "tags": [
@@ -4197,6 +4293,65 @@
                     },
                     "service": {
                         "type": "string"
+                    }
+                }
+            },
+            "V4PlanLimitsResponse": {
+                "type": "object",
+                "title": "V4PlanLimitsResponse",
+                "required": [
+                    "plan_id",
+                    "coin",
+                    "is_enterprise",
+                    "max_history_days",
+                    "rate_limits"
+                ],
+                "properties": {
+                    "plan_id": {
+                        "type": "string",
+                        "description": "Resolved plan identifier for the authenticated key"
+                    },
+                    "coin": {
+                        "type": "string",
+                        "enum": [
+                            "btc",
+                            "eth",
+                            "sol"
+                        ]
+                    },
+                    "is_enterprise": {
+                        "type": "boolean",
+                        "description": "Whether Enterprise routing and overrides apply to this key and coin"
+                    },
+                    "max_history_days": {
+                        "type": "integer",
+                        "enum": [
+                            31,
+                            60,
+                            120
+                        ],
+                        "description": "Maximum historical query window enforced for this key and coin"
+                    },
+                    "rate_limits": {
+                        "type": "object",
+                        "required": [
+                            "max_per_second",
+                            "max_per_minute"
+                        ],
+                        "properties": {
+                            "max_per_second": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "max_per_minute": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "minimum": 1,
+                                "description": "Sustained minute limit, or null when no separate minute cap applies"
+                            }
+                        }
                     }
                 }
             }

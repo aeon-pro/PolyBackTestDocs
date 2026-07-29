@@ -13,3 +13,8 @@ curl "https://api.polybacktest.com/v4/markets/1051520/snapshots?coin=btc&limit=1
 `include_orderbook` defaults to `false`. `start_time`, `end_time`, and every returned `time` value are epoch milliseconds.
 
 Continue with `next_offset` while `has_more` is true. Set `include_total=false` to skip the exact count.
+
+If `start_time` is omitted, the API clamps the query to the authenticated
+key's 31-, 60-, or 120-day history window. An explicit timestamp older than
+that window returns `403 HISTORY_LIMIT_EXCEEDED`. Actual collected coverage may
+be shorter for newer markets or backfills still in progress.

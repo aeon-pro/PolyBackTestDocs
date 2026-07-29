@@ -1,0 +1,40 @@
+---
+title: 'Get Effective Plan Limits'
+openapi: 'GET /v4/billing/plan-limits'
+---
+
+Returns the effective history and request-rate limits for the authenticated API
+key and selected coin.
+
+```bash
+curl "https://api.polybacktest.com/v4/billing/plan-limits?coin=btc" \
+  -H "X-API-Key: $POLY_KEY"
+```
+
+The `coin` query parameter is required and accepts `btc`, `eth`, or `sol`.
+Limits can be coin-specific for Enterprise accounts, so request this endpoint
+for the same coin you plan to query. The coin must be included in the key's
+plan; for example, a Free key requesting ETH or SOL receives
+`403 COIN_NOT_IN_PLAN`.
+
+```json
+{
+  "plan_id": "pro",
+  "coin": "btc",
+  "is_enterprise": false,
+  "max_history_days": 120,
+  "rate_limits": {
+    "max_per_second": 10,
+    "max_per_minute": 300
+  }
+}
+```
+
+`max_history_days` is the key's enforced 31-, 60-, or 120-day query window.
+Actual collected coverage can be shorter for newer markets or backfills still
+in progress. `plan_id` becomes `enterprise` when the selected coin uses an
+Enterprise route. `rate_limits.max_per_minute` is `null` when no separate
+sustained minute cap applies.
+
+The response includes `X-Request-Id`. Include that value when contacting
+support about an entitlement or routing mismatch.
